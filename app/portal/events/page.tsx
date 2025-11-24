@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Plus, ChevronLeft, ChevronRight, Calendar as CalendarIcon, MapPin, ExternalLink, Clock, Edit, Trash2, MoreVertical, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, MoreVertical, Eye, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -26,9 +26,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { Event, CreateEventData, UpdateEventData } from '@/types/dashboard/event';
 import { createEvent, getEvents, updateEvent, deleteEvent } from '@/app/api/dashboard/events';
-import { Badge } from '@/components/ui/badge';
 
 const initialFormData: CreateEventData = {
   title: '',
@@ -53,13 +53,13 @@ const EventsPage: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [formData, setFormData] = useState<CreateEventData>(initialFormData);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [images, setImages] = useState<File[]>([]);
+  const [documents, setDocuments] = useState<File[]>([]);
 
   useEffect(() => {
     fetchEvents();
@@ -78,55 +78,48 @@ const EventsPage: React.FC = () => {
     }
   };
 
-  const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
-    
-    return { daysInMonth, startingDayOfWeek, firstDay, lastDay };
+  const handleAddImages = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    setImages(prev => [...prev, ...Array.from(e.target.files!)]);
   };
 
-  const getEventsForDate = (date: Date) => {
-    return events.filter(event => {
-      const eventDate = new Date(event.start_date);
-      return eventDate.toDateString() === date.toDateString();
-    });
+  const handleAddDocuments = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    setDocuments(prev => [...prev, ...Array.from(e.target.files!)]);
   };
 
-  const groupEventsByDate = () => {
-    const grouped: { [key: string]: Event[] } = {};
-    
-    events.forEach(event => {
-      const date = new Date(event.start_date).toDateString();
-      if (!grouped[date]) {
-        grouped[date] = [];
-      }
-      grouped[date].push(event);
-    });
-    
-    return grouped;
+  const removeImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  const getUpcomingEvents = () => {
-    const now = new Date();
-    return events
-      .filter(event => new Date(event.start_date) >= now)
-      .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
-      .slice(0, 5);
+  const removeDocument = (index: number) => {
+    setDocuments(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleCreateEvent = async (): Promise<void> => {
+  const handleCreateEvent = async () => {
     try {
       setLoading(true);
-      const newEvent = await createEvent(formData);
+      const fd = new FormData();
+      fd.append("title", formData.title);
+      fd.append("start_date", formData.start_date);
+
+      if (formData.description) fd.append("description", formData.description);
+      if (formData.event_type) fd.append("event_type", formData.event_type);
+      if (formData.end_date) fd.append("end_date", formData.end_date);
+      if (formData.location) fd.append("location", formData.location);
+      if (formData.link) fd.append("link", formData.link);
+
+      images.forEach((img) => fd.append("images", img));
+      documents.forEach((doc) => fd.append("documents", doc));
+
+      const newEvent = await createEvent(fd);
       setEvents(prev => [newEvent, ...prev]);
       setFormData(initialFormData);
+      setImages([]);
+      setDocuments([]);
       setIsCreateDialogOpen(false);
     } catch (err) {
-      setError('Failed to create event');
+      setError("Failed to create event");
     } finally {
       setLoading(false);
     }
@@ -148,21 +141,11 @@ const EventsPage: React.FC = () => {
 
   const handleUpdateEvent = async (): Promise<void> => {
     if (!selectedEvent) return;
-
     try {
       setLoading(true);
-      const updateData: UpdateEventData = {
-        id: selectedEvent.id,
-        ...formData
-      };
+      const updateData: UpdateEventData = { id: selectedEvent.id, ...formData };
       const updatedEvent = await updateEvent(updateData);
-      
-      setEvents(prev => 
-        prev.map(event => 
-          event.id === selectedEvent.id ? updatedEvent : event
-        )
-      );
-      
+      setEvents(prev => prev.map(event => event.id === selectedEvent.id ? updatedEvent : event));
       setIsEditDialogOpen(false);
       setSelectedEvent(null);
     } catch (err) {
@@ -172,56 +155,41 @@ const EventsPage: React.FC = () => {
     }
   };
 
+  const handleDeleteEvent = async (eventId: string): Promise<void> => {
+    try {
+      await deleteEvent(eventId);
+      setEvents(prev => prev.filter(event => event.id !== eventId));
+    } catch (err) {
+      setError('Failed to delete event');
+    }
+  };
 
   const handleViewEvent = (event: Event): void => {
     setSelectedEvent(event);
     setIsViewDialogOpen(true);
   };
 
-  const formatTime = (dateString: string): string => {
-    return new Date(dateString).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
-  };
-
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
   };
 
-  const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentDate);
-  const monthName = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  
-  const previousMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1));
-  };
-
-  const nextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1));
-  };
-
   const getEventTypeColor = (type: string) => {
     return eventTypeOptions.find(opt => opt.value === type)?.color || 'bg-gray-100 text-gray-700';
   };
 
-  const groupedEvents = groupEventsByDate();
-  const upcomingEvents = getUpcomingEvents();
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
+      <div className="container mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Events Calendar</h1>
-            <p className="text-gray-600 mt-1">Manage your schedule and upcoming events</p>
+            <h1 className="text-3xl font-bold text-gray-900">Events</h1>
+            <p className="text-gray-600 mt-1">Manage all your events and attachments</p>
           </div>
           
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -317,6 +285,58 @@ const EventsPage: React.FC = () => {
                     placeholder="https://meet.google.com/..."
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <Label>Event Images</Label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleAddImages}
+                    className="cursor-pointer"
+                  />
+                  {images.length > 0 && (
+                    <div className="grid grid-cols-3 gap-3 mt-2">
+                      {images.map((img, idx) => (
+                        <div key={idx} className="relative">
+                          <img
+                            src={URL.createObjectURL(img)}
+                            className="w-full h-24 object-cover rounded-lg border"
+                          />
+                          <button
+                            onClick={() => removeImage(idx)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Attach Documents</Label>
+                  <Input
+                    type="file"
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
+                    multiple
+                    onChange={handleAddDocuments}
+                    className="cursor-pointer"
+                  />
+                  {documents.length > 0 && (
+                    <div className="space-y-2 mt-2">
+                      {documents.map((doc, idx) => (
+                        <div key={idx} className="flex items-center justify-between bg-gray-50 border p-2 rounded-lg">
+                          <span className="text-sm">{doc.name}</span>
+                          <button onClick={() => removeDocument(idx)} className="text-red-500 text-xs">
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 
                 <div className="flex justify-end gap-3 pt-4">
                   <Button 
@@ -341,282 +361,169 @@ const EventsPage: React.FC = () => {
           </Dialog>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Calendar */}
-          <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            {/* Calendar Header */}
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">{monthName}</h2>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={previousMonth}
-                  className="h-8 w-8 p-0 rounded-lg"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentDate(new Date())}
-                  className="h-8 px-3 text-sm"
-                >
-                  Today
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={nextMonth}
-                  className="h-8 w-8 p-0 rounded-lg"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Calendar Grid */}
-            <div className="grid grid-cols-7 gap-2">
-              {/* Weekday Headers */}
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                <div key={day} className="text-center text-xs font-semibold text-gray-600 py-2">
-                  {day}
-                </div>
-              ))}
-
-              {/* Empty cells for days before month starts */}
-              {Array.from({ length: startingDayOfWeek }).map((_, index) => (
-                <div key={`empty-${index}`} className="aspect-square" />
-              ))}
-
-              {/* Calendar Days */}
-              {Array.from({ length: daysInMonth }).map((_, index) => {
-                const day = index + 1;
-                const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-                const dayEvents = getEventsForDate(date);
-                const isToday = date.toDateString() === new Date().toDateString();
-                const isSelected = selectedDate?.toDateString() === date.toDateString();
-
-                return (
-                  <button
-                    key={day}
-                    onClick={() => setSelectedDate(date)}
-                    className={`
-                      aspect-square rounded-xl p-2 transition-all duration-200 relative
-                      ${isToday ? 'bg-[#27aae1] text-white font-semibold' : 'hover:bg-gray-50'}
-                      ${isSelected && !isToday ? 'ring-2 ring-[#27aae1] bg-blue-50' : ''}
-                      ${dayEvents.length > 0 && !isToday ? 'font-medium' : ''}
-                    `}
-                  >
-                    <div className="text-sm">{day}</div>
-                    {dayEvents.length > 0 && (
-                      <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex space-x-0.5">
-                        {dayEvents.slice(0, 3).map((_, i) => (
-                          <div 
-                            key={i} 
-                            className={`w-1 h-1 rounded-full ${isToday ? 'bg-white' : 'bg-[#27aae1]'}`}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Upcoming Events Sidebar */}
-          <div className="space-y-4">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Upcoming Events</h3>
-              <div className="space-y-3">
-                {upcomingEvents.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center py-8">No upcoming events</p>
-                ) : (
-                  upcomingEvents.map(event => (
-                    <div
-                      key={event.id}
-                      onClick={() => handleViewEvent(event)}
-                      className="p-3 rounded-xl border border-gray-100 hover:border-[#27aae1] hover:bg-blue-50/30 transition-all cursor-pointer group"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className="text-sm font-semibold text-gray-900 line-clamp-1 group-hover:text-[#27aae1]">
-                          {event.title}
-                        </h4>
+        {/* Events Table */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {loading ? (
+            <div className="p-8 text-center text-gray-500">Loading events...</div>
+          ) : error ? (
+            <div className="p-8 text-center text-red-500">{error}</div>
+          ) : events.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">No events found. Create one to get started!</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">Title</th>
+                    <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">Type</th>
+                    <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">Start Date</th>
+                    <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">Location</th>
+                    <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">Media</th>
+                    <th className="text-right px-6 py-3 text-sm font-semibold text-gray-700">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {events.map((event) => (
+                    <tr key={event.id} className="border-b border-gray-100 hover:bg-gray-50/50">
+                      <td className="px-6 py-3 font-medium text-gray-900">{event.title}</td>
+                      <td className="px-6 py-3">
                         {event.event_type && (
-                          <Badge className={`text-xs ${getEventTypeColor(event.event_type)} border`}>
+                          <Badge className={`${getEventTypeColor(event.event_type)} border text-xs`}>
                             {event.event_type}
                           </Badge>
                         )}
-                      </div>
-                      <div className="flex items-center text-xs text-gray-600">
-                        <Clock className="w-3 h-3 mr-1" />
-                        {formatTime(event.start_date)}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* Event Type Legend */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-3">Event Types</h3>
-              <div className="space-y-2">
-                {eventTypeOptions.map(type => (
-                  <div key={type.value} className="flex items-center space-x-2">
-                    <div className={`w-3 h-3 rounded-full ${type.color}`} />
-                    <span className="text-sm text-gray-600">{type.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Events by Day View */}
-        {selectedDate && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Events on {selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-            </h3>
-            <div className="space-y-3">
-              {getEventsForDate(selectedDate).length === 0 ? (
-                <p className="text-sm text-gray-500 text-center py-8">No events scheduled for this day</p>
-              ) : (
-                getEventsForDate(selectedDate).map(event => (
-                  <div
-                    key={event.id}
-                    className="border border-gray-200 rounded-xl p-4 hover:border-[#27aae1] hover:shadow-sm transition-all"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <h4 className="text-base font-semibold text-gray-900">{event.title}</h4>
-                          {event.event_type && (
-                            <Badge className={`text-xs ${getEventTypeColor(event.event_type)} border`}>
-                              {event.event_type}
-                            </Badge>
+                      </td>
+                      <td className="px-6 py-3 text-sm text-gray-600">{formatDate(event.start_date)}</td>
+                      <td className="px-6 py-3 text-sm text-gray-600">{event.location || '—'}</td>
+                      <td className="px-6 py-3 text-sm">
+                        <div className="flex items-center gap-2">
+                          {event.images.length > 0 && (
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                              {event.images.length} {event.images.length === 1 ? 'img' : 'imgs'}
+                            </span>
+                          )}
+                          {event.documents.length > 0 && (
+                            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                              {event.documents.length} {event.documents.length === 1 ? 'doc' : 'docs'}
+                            </span>
                           )}
                         </div>
-                        
-                        {event.description && (
-                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{event.description}</p>
-                        )}
-
-                        <div className="space-y-1.5">
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Clock className="w-4 h-4 mr-2" />
-                            {formatTime(event.start_date)}
-                            {event.end_date && ` - ${formatTime(event.end_date)}`}
-                          </div>
-
-                          {event.location && (
-                            <div className="flex items-center text-sm text-gray-600">
-                              <MapPin className="w-4 h-4 mr-2" />
-                              {event.location}
-                            </div>
-                          )}
-
-                          {event.link && (
-                            <a
-                              href={event.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center text-sm text-[#27aae1] hover:text-[#1e8bb8]"
-                              onClick={(e) => e.stopPropagation()}
+                      </td>
+                      <td className="px-6 py-3 text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleViewEvent(event)}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditEvent(event)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDeleteEvent(event.id)}
+                              className="text-red-600"
                             >
-                              <ExternalLink className="w-4 h-4 mr-2" />
-                              Join meeting
-                            </a>
-                          )}
-                        </div>
-                      </div>
-
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleViewEvent(event)}>
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditEvent(event)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                         
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                ))
-              )}
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* View Event Dialog */}
         <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Event Details</DialogTitle>
             </DialogHeader>
             {selectedEvent && (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <h3 className="font-semibold text-lg">{selectedEvent.title}</h3>
+                  <h3 className="text-2xl font-semibold text-gray-900">{selectedEvent.title}</h3>
                   {selectedEvent.event_type && (
                     <Badge className={`mt-2 ${getEventTypeColor(selectedEvent.event_type)} border`}>
                       {selectedEvent.event_type}
                     </Badge>
                   )}
                 </div>
-                
+
                 {selectedEvent.description && (
                   <div>
-                    <h4 className="font-medium mb-2">Description</h4>
+                    <h4 className="font-semibold text-gray-900 mb-2">Description</h4>
                     <p className="text-gray-700">{selectedEvent.description}</p>
                   </div>
                 )}
 
-                <div className="space-y-2">
-                  <div className="flex items-center text-sm">
-                    <Clock className="w-4 h-4 mr-2 text-gray-500" />
-                    <span className="font-medium mr-2">Start:</span>
-                    {formatDate(selectedEvent.start_date)}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-600">Start Date</p>
+                    <p className="font-medium text-gray-900">{formatDate(selectedEvent.start_date)}</p>
                   </div>
                   {selectedEvent.end_date && (
-                    <div className="flex items-center text-sm">
-                      <Clock className="w-4 h-4 mr-2 text-gray-500" />
-                      <span className="font-medium mr-2">End:</span>
-                      {formatDate(selectedEvent.end_date)}
+                    <div>
+                      <p className="text-sm text-gray-600">End Date</p>
+                      <p className="font-medium text-gray-900">{formatDate(selectedEvent.end_date)}</p>
                     </div>
                   )}
                 </div>
 
                 {selectedEvent.location && (
-                  <div className="flex items-center text-sm">
-                    <MapPin className="w-4 h-4 mr-2 text-gray-500" />
-                    <span>{selectedEvent.location}</span>
+                  <div>
+                    <p className="text-sm text-gray-600">Location</p>
+                    <p className="font-medium text-gray-900">{selectedEvent.location}</p>
                   </div>
                 )}
 
                 {selectedEvent.link && (
                   <div>
-                    <h4 className="font-medium mb-2">Meeting Link</h4>
-                    <a 
-                      href={selectedEvent.link} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-[#27aae1] hover:underline flex items-center"
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
+                    <p className="text-sm text-gray-600 mb-2">Meeting Link</p>
+                    <a href={selectedEvent.link} target="_blank" rel="noopener noreferrer" className="text-[#27aae1] hover:underline break-all">
                       {selectedEvent.link}
                     </a>
+                  </div>
+                )}
+
+                {selectedEvent.images.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-3">Images</h4>
+                    <div className="grid grid-cols-3 gap-3">
+                      {selectedEvent.images.map((img) => (
+                        <img key={img.id} src={img.image} alt={img.caption || 'Event image'} className="w-full h-32 object-cover rounded-lg border border-gray-200" />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedEvent.documents.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-3">Documents</h4>
+                    <div className="space-y-2">
+                      {selectedEvent.documents.map((doc) => (
+                        <a
+                          key={doc.id}
+                          href={doc.file}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                        >
+                          <span className="text-sm font-medium text-gray-900 truncate">{doc.file.split('/').pop()}</span>
+                          <Download className="h-4 w-4 text-[#27aae1]" />
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

@@ -8,11 +8,11 @@ import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
 import { useState, useEffect } from "react"
 
 const heroImages = [
-  // {
-  //   src: "/images/health-awareness.jpeg",
-  //   alt: "Health awareness and universal health coverage initiatives in Kenya",
-  //   title: "Health Awareness"
-  // },
+  {
+    src: "/images/launch.webp",
+    alt: "Health CS Duale inaugurates BPTAP",
+    title: "Health CS Duale inaugurates BPTAP"
+  },
   {
     src: "/images/nice-training.jpg",
     alt: "Advanced Health Technology Assessment training by NICE",
@@ -206,7 +206,7 @@ export default function HeroSection() {
               </button>
 
               {/* Dot Indicators */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex gap-2">
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-80 flex gap-2">
                 {heroImages.map((_, index) => (
                   <button
                     key={index}
@@ -222,7 +222,7 @@ export default function HeroSection() {
               </div>
 
               {/* Image Title Overlay */}
-              <div className="absolute bottom-16 left-4 right-4 z-30 bg-black/50 backdrop-blur-sm text-white px-4 py-2 rounded-lg">
+              <div className="absolute bottom-0 left-4 right-4 z-50 bg-black/50 backdrop-blur-sm text-white px-4 py-2 rounded-lg">
                 <p className="text-sm font-medium">{heroImages[currentImageIndex].title}</p>
               </div>
             </div>

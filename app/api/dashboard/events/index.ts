@@ -65,17 +65,32 @@ export const getEvent = async (id: string): Promise<Event> => {
   }
 };
 
-/**
- * Create a new event
- */
-export const createEvent = async (data: CreateEventData): Promise<Event> => {
+// /**
+//  * Create a new event
+//  */
+// export const createEvent = async (data: CreateEventData): Promise<Event> => {
+//   try {
+//     const response = await api.post('/v2/proj/events/', data);
+//     return response.data;
+//   } catch (error) {
+//     throw new Error('Failed to create event');
+//   }
+// };
+
+export const createEvent = async (data: CreateEventData | FormData): Promise<Event> => {
   try {
-    const response = await api.post('/v2/proj/events/', data);
+    const response = await api.post('/v2/proj/events/', data, {
+      headers: data instanceof FormData
+        ? { "Content-Type": "multipart/form-data" }
+        : undefined,
+    });
+
     return response.data;
   } catch (error) {
     throw new Error('Failed to create event');
   }
 };
+
 
 /**
  * Update an existing event
