@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Shield, TrendingUp, Heart, Users, Target, CheckCircle, Building2 } from 'lucide-react'
 import Navbar from '../components/layouts/navbar'
 import Footer from '../components/layouts/footer'
+import type { Variants } from "framer-motion"
 
 export default function AboutClient() {
   return (
@@ -130,14 +131,17 @@ function HeroSection() {
     },
   }
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: 'easeOut' },
-    },
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: "easeInOut" as const
+    }
   }
+}
 
   return (
     <section className="relative pt-24 md:pt-32 pb-16 md:pb-24 overflow-hidden">
@@ -372,7 +376,7 @@ function MissionSection() {
             className="w-full lg:w-1/2 order-2 lg:order-1"
           >
             <motion.div 
-              variants={itemVariants}
+
               className="relative rounded-lg overflow-hidden shadow-xl"
             >
               <div className="aspect-w-16 aspect-h-9">
@@ -405,7 +409,7 @@ function MissionSection() {
             className="w-full lg:w-1/2 order-1 lg:order-2"
           >
             <motion.h2 
-              variants={itemVariants}
+
               className="text-3xl font-bold mb-4"
             >
               Our <span className="text-[#020e3c]">Mission</span>
@@ -414,7 +418,7 @@ function MissionSection() {
           
             
             <motion.p 
-              variants={itemVariants}
+
               className="text-gray-700 text-lg mb-6"
             >
               We are dedicated to promoting a transparent, 
@@ -423,7 +427,7 @@ function MissionSection() {
             </motion.p>
             
             <motion.p 
-              variants={itemVariants}
+
               className="text-gray-700 text-lg mb-8"
             >
               Our mission is to ensure all Kenyans have access to high-quality, cost-effective healthcare 
@@ -432,7 +436,7 @@ function MissionSection() {
             </motion.p>
             
             <motion.div 
-              variants={itemVariants}
+    
               className="bg-gray-50 p-6 rounded-lg border-l-4 border-[#1d8fc3]"
             >
               <h4 className="text-xl font-semibold mb-3">Our Vision</h4>
