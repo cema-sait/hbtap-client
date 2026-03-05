@@ -36,7 +36,7 @@ pm2 --version
 Create a `.env.local` file in the project root directory with the following configuration:
 
 ```properties
-NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
+NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000/api
 ```
 
 **Note:** This URL should point to your HTA Server backend API.
@@ -123,8 +123,6 @@ pm2 save
 - **Ensure Backend is Running:** The backend API should be running at [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ---
-
-
 
 
 ## Development - important scripts
