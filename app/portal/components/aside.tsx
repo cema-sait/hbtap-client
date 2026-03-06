@@ -29,7 +29,8 @@ import {
   LayoutDashboard,
   Bell,
   Layers,
-  SlidersHorizontal
+  SlidersHorizontal,
+  ClipboardCheck
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -89,6 +90,34 @@ const Aside = ({ isOpen, onToggle, user }: AsideProps) => {
     }
   ],
 },
+
+{
+  title: "Proposal Selection",
+  icon: <ClipboardCheck className="h-5 w-5" />,
+  children: [
+    {
+      title: "Assign System Categories",
+      href: "/portal/proposal-selection/assign",
+      icon: <Layers className="h-4 w-4" />,
+    },
+    {
+      title: "Interventions by Category",
+      href: "/portal/proposal-selection/category",
+      icon: <LayoutDashboard className="h-4 w-4" />,
+    },
+    {
+      title: "Score Interventions",
+      href: "/portal/proposal-selection/score",
+      icon: <SlidersHorizontal className="h-4 w-4" />,
+    },
+    {
+      title: "Scoring Reports",
+      href: "/portal/proposal-selection/reports",
+      icon: <BarChart3 className="h-4 w-4" />,
+    },
+  ],
+},
+
 {
   title: "Interventions Tracker",
   icon: <BarChart3 className="h-5 w-5" />,

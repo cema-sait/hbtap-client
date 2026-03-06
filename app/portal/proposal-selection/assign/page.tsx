@@ -27,14 +27,12 @@ import {
   deleteInterventionCategory,
 } from "@/app/api/new/client";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 interface InterventionRow {
   proposal: SubmittedProposal;
   linkedCategories: InterventionSystemCategory[];
   saving: boolean;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
 export default function AssignCategoriesPage() {
   const [rows, setRows] = useState<InterventionRow[]>([]);
   const [allCategories, setAllCategories] = useState<SystemCategory[]>([]);

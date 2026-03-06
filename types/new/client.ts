@@ -67,6 +67,10 @@ export interface InterventionScore {
   comment: string | null;
   created_at: ISODateString;
   updated_at: ISODateString;
+  reviewer_name: string;
+  reviewer_email: string;
+  intervention_name: string;
+  intervention_reference: string;
 }
 
 
