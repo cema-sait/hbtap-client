@@ -27,7 +27,9 @@ import {
   MessageSquare,
   Target,
   LayoutDashboard,
-  Bell
+  Bell,
+  Layers,
+  SlidersHorizontal
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -70,6 +72,23 @@ const Aside = ({ isOpen, onToggle, user }: AsideProps) => {
       href: "/portal",
       icon: <Home className="h-5 w-5" />,
     },
+
+{
+  title: "Tools Configuration",
+  icon: <Settings className="h-5 w-5" />,
+  children: [
+    {
+      title: "Criteria Selection",
+      href: "/portal/config/selection-tool",
+      icon: <SlidersHorizontal className="h-4 w-4" />,
+    },
+    {
+      title: "System Categories",
+      href: "/portal/config/system-category",
+      icon: <Layers className="h-4 w-4" />,
+    }
+  ],
+},
 {
   title: "Interventions Tracker",
   icon: <BarChart3 className="h-5 w-5" />,

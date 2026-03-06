@@ -68,7 +68,7 @@ export default function SystemCategoriesPage() {
   const columns: Column<SystemCategory>[] = [
     {
       header: "Category",
-      cell: (row) => <span className="font-medium">{row.system_category}</span>,
+      cell: (row) => <span className="font-medium">{row.name}</span>,
     },
     {
       header: "Description",
@@ -127,7 +127,7 @@ export default function SystemCategoriesPage() {
               data={categories}
               columns={columns}
               searchPlaceholder="Search categories..."
-              searchFn={(row, q) => row.system_category.toLowerCase().includes(q) || row.description.toLowerCase().includes(q)}
+              searchFn={(row, q) => row.name.toLowerCase().includes(q) || row.description.toLowerCase().includes(q)}
             />
           )}
         </CardContent>
@@ -140,7 +140,7 @@ export default function SystemCategoriesPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete category?</AlertDialogTitle>
             <AlertDialogDescription>
-              <strong>{toDelete?.system_category}</strong> will be permanently removed. Linked interventions may be affected.
+              <strong>{toDelete?.name}</strong> will be permanently removed. Linked interventions may be affected.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
