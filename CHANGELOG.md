@@ -13,9 +13,6 @@ All notable changes to this project will be documented in this file.
 - Next.js: ^16.1.6
 - React: ^19.2.4
 - React DOM: ^19.2.4
-- React Router
-- react-chartjs-2: ^5.3.1
-- react-icons: ^5.5.0
 
 ---
 
