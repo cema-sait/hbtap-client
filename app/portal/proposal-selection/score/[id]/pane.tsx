@@ -20,7 +20,7 @@ interface Props {
 export function ScoringPanel({ groups, scores, onScore }: Props) {
   const [query, setQuery] = useState("");
 
-  // Map: tool_id → saved score
+
   const savedByToolId = useMemo(() => {
     const map = new Map<string, InterventionScore>();
     for (const s of scores) {
@@ -30,7 +30,6 @@ export function ScoringPanel({ groups, scores, onScore }: Props) {
     return map;
   }, [scores]);
 
-  // A group is "scored" if any of its option IDs appear in savedByToolId
   const isScoredGroup = (group: CriteriaGroup) =>
     group.options.some((o) => savedByToolId.has(o.id));
 

@@ -1,11 +1,12 @@
 "use client";
 
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { MapPin, User, Building2, Calendar, FileText } from "lucide-react";
 import { SubmittedProposal } from "@/types/dashboard/submittedProposals";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation"; // ← also fix: use next/navigation not next/router
 
 function Field({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null;
@@ -18,6 +19,8 @@ function Field({ label, value }: { label: string; value?: string | null }) {
 }
 
 export function InterventionDetail({ proposal }: { proposal: SubmittedProposal }) {
+  const router = useRouter(); // ← moved inside the component
+
   return (
     <Card className="border-slate-200 shadow-sm bg-white">
       <div className="bg-gradient-to-r from-teal-600 to-teal-500 px-5 py-4 -mt-6 rounded-t-lg">
@@ -28,12 +31,18 @@ export function InterventionDetail({ proposal }: { proposal: SubmittedProposal }
               {proposal.intervention_name ?? "Untitled Intervention"}
             </h2>
           </div>
-          <div className="flex flex-col items-end gap-1.5 shrink-0">
-            <Badge className="bg-white/20 text-white border-white/30 text-xs font-mono">{proposal.reference_number}</Badge>
-            {proposal.intervention_type && (
-              <Badge className="bg-teal-700 text-teal-100 border-0 text-xs">{proposal.intervention_type}</Badge>
-            )}
-          </div>
+          <Button
+            variant="link"
+            className="h-auto p-0 text-blue-600 hover:text-blue-800 font-mono text-xs"
+            onClick={() => router.push(`/portal/interventions/tracker/${proposal.id}`)}
+          >
+            <div className="flex flex-col items-end gap-1.5 shrink-0">
+              <Badge className="bg-white/20 text-white border-white/30 text-xs font-mono">{proposal.reference_number}</Badge>
+              {proposal.intervention_type && (
+                <Badge className="bg-teal-700 text-teal-100 border-0 text-xs">{proposal.intervention_type}</Badge>
+              )}
+            </div>
+          </Button>
         </div>
       </div>
 
