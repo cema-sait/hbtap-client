@@ -3,8 +3,8 @@ export interface UserScoringStatus {
   full_name: string;
   email: string;
   scored: boolean;
-  score_count: number;      
-  user_total_score: number; 
+  score_count: number;
+  user_total_score: number;
 }
 
 export interface InterventionScoreReport {
@@ -12,12 +12,13 @@ export interface InterventionScoreReport {
   reference_number: string;
   intervention_name: string;
   intervention_type: string | null;
+  system_categories: string[];
   max_possible_score: number;
-  criteria_scored: number;       
-  criteria_total: number;       
+  criteria_scored: number;
+  criteria_total: number;
   is_fully_scored: boolean;
   reviewer_statuses: UserScoringStatus[];
-  overall_total_score: number;   
+  overall_total_score: number;
 }
 
 export interface ScoringReportResult {
@@ -52,16 +53,3 @@ export interface EnrichedInterventionScore {
   intervention_name: string;
   intervention_reference: string;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
