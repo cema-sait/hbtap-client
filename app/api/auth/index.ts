@@ -2,10 +2,13 @@ import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { useState, useEffect } from 'react';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-const API_URL = `${process.env.API_URL || API_BASE_URL}`;
+// const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+// const API_URL = `${process.env.API_URL || API_BASE_URL}`;
 
-// const API_URL = '/api';
+const API_URL = '/api';
+
+
+export type UserRole = 'admin' | 'secretariate' | 'content_manager' | 'user' | 'swg';
 
 
 const api = axios.create({
@@ -18,8 +21,12 @@ const api = axios.create({
 interface DecodedToken {
   exp: number;
   user_id: string;
+  role: UserRole;
+  email: string;
   [key: string]: any;
 }
+
+
 
 export interface Member {
   id: number | null;
@@ -48,6 +55,7 @@ export interface User {
   is_blocked: boolean;
   last_login: string;
   member: Member;
+  role: UserRole;
 }
 
 
@@ -73,31 +81,10 @@ export interface Member {
   };
 }
 
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  first_name?: string | null;
-  last_name?: string | null;
-  is_active: boolean;
-  groups: string[];
-  user_permissions: string[];
-  country: string | null;
-  is_staff: boolean;
-  is_superuser: boolean;
-  is_email_verified: boolean;
-  status: string;
-  is_blocked: boolean;
-  last_login: string;
-  member: Member;
-}
-
 export interface UserProfile extends User {
   profile_image?: string;
   date_joined?: string;
-  member: Member;
 }
-
 
 export interface AuthResponse {
   success: boolean;
@@ -173,7 +160,7 @@ const isTokenValid = (token: string | null): boolean => {
   }
 };
 
-const getAccessToken = (): string | null => {
+export const getAccessToken = (): string | null => {
   if (memoryAccessToken && isTokenValid(memoryAccessToken)) {
     return memoryAccessToken;
   }
