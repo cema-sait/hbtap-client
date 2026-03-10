@@ -1,0 +1,38 @@
+name: Deploy to VPS
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    name: SSH & Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          envs: GITHUB_REF_NAME
+          script: |
+            set -e
+
+            cd ${{ secrets.VPS_APP_DIR }}
+
+            git fetch --tags origin
+            git checkout "$GITHUB_REF_NAME"
+
+            docker compose build
+
+            docker compose up -d --remove-orphans
+
+            docker image prune -f
+
+            echo "Deployed $GITHUB_REF_NAME"
