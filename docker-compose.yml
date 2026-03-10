@@ -5,11 +5,29 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://127.0.0.1:8000/api}
+
     image: hbtap-client
     container_name: hbtap-client
     restart: unless-stopped
-    ports:
-      - "3000:3000"
+
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-http://127.0.0.1:8000/api}
+
+    networks:
+      - proxy
+
+    labels:
+      - "traefik.enable=true"
+
+      # router
+      - "traefik.http.routers.hbtap.rule=Host(`hbtap.dev.cema.africa`)"
+      - "traefik.http.routers.hbtap.entrypoints=websecure"
+      - "traefik.http.routers.hbtap.tls.certresolver=letsencrypt"
+
+      # service port (nextjs runs on 3000)
+      - "traefik.http.services.hbtap.loadbalancer.server.port=3000"
+
+networks:
+  proxy:
+    external: true
