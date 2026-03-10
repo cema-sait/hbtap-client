@@ -127,6 +127,13 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/interventions" className="text-white hover:font-bold transition-all duration-300 flex items-center group text-base">
+                  <ArrowUpRight size={14} className="mr-3 text-[#27aae1] opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
+                  Interventions
+                </Link>
+              </li>
+
+              <li>
                 <Link href="/governance" className="text-white hover:font-bold transition-all duration-300 flex items-center group text-base">
                   <ArrowUpRight size={14} className="mr-3 text-[#27aae1] opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
                   Governance
