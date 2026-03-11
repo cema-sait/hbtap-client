@@ -252,14 +252,13 @@ export default function BrowseByCategoryPage() {
             </nav>
           </aside>
 
-          {/* Main panel — 80% */}
           <div className="flex flex-col flex-1 min-w-0">
 
             {/* Panel header */}
             <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="font-semibold text-slate-800">{activeCategoryLabel}</h2>
+                  <h2 className=" text-lg font-semibold text-slate-800">{activeCategoryLabel}</h2>
                   {activeCategoryDesc && (
                     <p className="text-xs text-slate-500 mt-1 flex items-start gap-1.5 max-w-xl">
                       <Info className="h-3.5 w-3.5 shrink-0 mt-0.5 text-slate-400" />

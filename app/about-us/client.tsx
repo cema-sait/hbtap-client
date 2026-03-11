@@ -312,8 +312,8 @@ function WhatIsHTASection() {
 
 function CTASection() {
   return (
-    <section className="border border-[#27aae1]">
-      <div className="w-full mx-auto px-4 bg-gray-900 border-b-2  py-16">
+    <section className="">
+      <div className="container mx-auto px-2 bg-white py-16">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -330,14 +330,14 @@ function CTASection() {
 
           <motion.h2
             variants={itemVariants}
-            className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight mb-4"
+            className="text-2xl sm:text-3xl font-extrabold  tracking-tight leading-tight mb-4"
           >
             Towards Advancing Universal Health Coverage
           </motion.h2>
 
           <motion.p
             variants={itemVariants}
-            className="text-base text-gray-400 leading-relaxed mb-10"
+            className="text-base  leading-relaxed mb-10"
           >
             Join us in our mission to make healthcare more accessible, equitable, and effective
             for all Kenyans through evidence-based assessment.
@@ -346,14 +346,14 @@ function CTASection() {
           <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3">
             <Link
               href="/resources"
-              className="inline-flex items-center justify-center gap-2 bg-[#27aae1] hover:bg-[#1a8fc4] text-white text-base font-bold px-6 py-3 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#27aae1] focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+              className="inline-flex items-center justify-center gap-2 bg-[#27aae1] hover:bg-[#1a8fc4]  text-base font-bold px-6 py-3 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#27aae1] focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
             >
               Learn More
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/contact"
-              className="inline-flex items-center justify-center gap-2 border-2 border-white text-white text-base font-bold px-6 py-3 hover:bg-white hover:text-gray-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+              className="inline-flex items-center justify-center gap-2 border-2 border-black text-base font-bold px-6 py-3 hover:bg-white hover:text-gray-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
             >
               Get Involved
             </Link>

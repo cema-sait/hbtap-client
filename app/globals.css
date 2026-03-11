@@ -115,7 +115,7 @@
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
@@ -229,6 +229,80 @@
 }
 
 /* ─── Typography utilities ────────────────────────────────────────────────── */
+
+/*
+ * Fluid Tailwind text-* utility overrides
+ * These make every text-{size} class scale fluidly across the viewport
+ * instead of snapping to a fixed value.
+ *
+ * Scale range: 375px (mobile) → 1536px (2xl desktop)
+ * Formula:    clamp(mobile-size, preferred-vw, desktop-size)
+ *
+ * text-xs   →  10px  – 12px
+ * text-sm   →  12px  – 14px
+ * text-base →  14px  – 16px   (mirrors body)
+ * text-lg   →  15px  – 18px
+ * text-xl   →  17px  – 20px
+ * text-2xl  →  20px  – 24px
+ * text-3xl  →  24px  – 30px
+ * text-4xl  →  28px  – 36px
+ * text-5xl  →  32px  – 48px
+ * text-6xl  →  36px  – 60px
+ */
+
+@layer utilities {
+  .text-xs {
+    font-size: clamp(0.75rem, 0.69rem + 0.26vw, 0.875rem);   /* 12 → 14px */
+    line-height: 1.55;
+  }
+
+  .text-sm {
+    font-size: clamp(0.875rem, 0.81rem + 0.28vw, 1rem);      /* 14 → 16px */
+    line-height: 1.65;
+  }
+
+  .text-base {
+    font-size: clamp(0.9375rem, 0.85rem + 0.37vw, 1.125rem); /* 15 → 18px */
+    line-height: 1.6;
+  }
+
+  .text-lg {
+    font-size: clamp(1.0625rem, 0.96rem + 0.43vw, 1.25rem);  /* 17 → 20px */
+    line-height: 1.5;
+  }
+
+
+  .text-xl {
+    font-size: clamp(1.25rem, 1.12rem + 0.56vw, 1.5rem);     /* 20 → 24px */
+    line-height: 1.4;
+  }
+
+  .text-2xl {
+    font-size: clamp(1.5rem, 1.33rem + 0.73vw, 1.875rem);    /* 24 → 30px */
+    line-height: 1.35;
+  }
+
+
+  .text-3xl {
+    font-size: clamp(1.75rem, 1.53rem + 0.95vw, 2.25rem);    /* 28 → 36px */
+    line-height: 1.25;
+  }
+
+  .text-4xl {
+    font-size: clamp(2rem, 1.68rem + 1.37vw, 3rem);          /* 32 → 48px */
+    line-height: 1.15;
+  }
+
+  .text-5xl {
+    font-size: clamp(2.25rem, 1.82rem + 1.84vw, 3.75rem);    /* 36 → 60px */
+    line-height: 1.08;
+  }
+
+  .text-6xl {
+    font-size: clamp(2.25rem, 1.82rem + 1.84vw, 3.75rem);    /* 36 → 60px */
+    line-height: 1.08;
+  }
+}
 
 /* Page-level display headings — very large, editorial */
 .display-heading {
