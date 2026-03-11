@@ -40,10 +40,10 @@ const itemVariants = {
 
 export default function AboutSection() {
   return (
-    <section className="bg-white border-b border-gray-200">
+    <section className="bg-white ">
       {/* ── Section header band ── */}
-      <div className="border-b border-gray-200">
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-10">
+      <div className="">
+        <div className="container mx-auto  py-10 border-b border-gray-200">
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -51,7 +51,7 @@ export default function AboutSection() {
             variants={containerVariants}
             className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6"
           >
-            <div className="max-w-2xl">
+            <div className="max-w-3xl">
               {/* Eyebrow */}
               <motion.div variants={itemVariants} className="flex items-center gap-3 mb-4">
                 <div className="h-px w-8 bg-[#27aae1]" />
@@ -71,7 +71,7 @@ export default function AboutSection() {
 
               <motion.p
                 variants={itemVariants}
-                className="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed"
+                className="mt-4 text-xl  leading-relaxed"
               >
                 The Benefits Package and Tariffs Advisory Panel is committed to promoting
                 transparent, evidence-informed approaches to healthcare decision-making in Kenya.
@@ -93,7 +93,7 @@ export default function AboutSection() {
       </div>
 
       {/* ── Three pillar cards ── */}
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-12">
+      <div className="container mx-auto px-4 sm:px-6 py-12">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -116,7 +116,7 @@ export default function AboutSection() {
 
                 {/* Number + icon row */}
                 <div className="flex items-center justify-between">
-                  <span className="text-4xl font-black text-gray-100 select-none leading-none">
+                  <span className="text-4xl font-black text-gray-400 select-none leading-none">
                     {pillar.label}
                   </span>
                   <div
@@ -128,10 +128,10 @@ export default function AboutSection() {
 
                 {/* Text */}
                 <div>
-                  <h3 className="text-base font-bold text-gray-900 mb-2 leading-snug">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2 ">
                     {pillar.title}
                   </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
+                  <p className=" text-xl leading-relaxed">
                     {pillar.body}
                   </p>
                 </div>

@@ -35,10 +35,10 @@ export default function Page() {
       <Navbar />
 
 
-      <section className="bg-white border-b border-gray-900 ">
+      <section className="bg-white">
 
 
-        <div className="container mx-auto px-4 sm:px-6 py-14">
+        <div className="container mx-auto px-2  border-b border-gray-900  py-14">
           <div className="max-w-5xl">
      
 
@@ -69,10 +69,10 @@ export default function Page() {
               </div>
 
               <div>
-                <h2 className="text-base font-bold text-gray-900 mb-3">
+                <h2 className="text-xl font-bold text-gray-900 mb-3">
                   Who Can Submit Proposals?
                 </h2>
-                <p className="text-sm text-gray-700 leading-relaxed">
+                <p className="text-xl  leading-relaxed">
                   The relevant stakeholders including the Authority, policy makers, the academia,
                   members of the public, health professional associations, civil society
                   organizations involved in matters of health, the Kenya Medical Supplies Authority
@@ -94,10 +94,10 @@ export default function Page() {
               </div>
 
               <div>
-                <h2 className="text-base font-bold text-gray-900 mb-3">
+                <h2 className="text-xl font-bold text-gray-900 mb-3">
                   How to Submit Your Proposal
                 </h2>
-                <p className="text-sm text-gray-700 leading-relaxed">
+                <p className="text-xl text-gray-700 leading-relaxed">
                   The proposals will be received by the BPTAP secretariat through various channels
                   including direct requests by the Panel to key stakeholders; scheduled stakeholder
                   meetings or forums; or digital platforms including{' '}
@@ -122,7 +122,7 @@ export default function Page() {
             <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight mb-2">
               Submit Your Proposal
             </h2>
-            <p className="text-base text-gray-600">
+            <p className="text-xl text-gray-600">
               Complete the form below to submit your intervention proposal.
             </p>
           </div>

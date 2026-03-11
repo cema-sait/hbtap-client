@@ -59,8 +59,8 @@ export default function ContactClient() {
 
 function HeroSection() {
   return (
-    <section className="bg-white border-b-2 border-gray-900 ">
-      <div className="container mx-auto px-4 sm:px-6 py-14">
+    <section className="bg-white  ">
+      <div className="container mx-auto px-2 border-b-2 border-gray-900 py-14">
         <div className="max-w-3xl">
           {/* Eyebrow */}
           <div className="flex items-center gap-3 mb-5">

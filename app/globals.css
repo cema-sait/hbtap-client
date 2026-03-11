@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -6,7 +7,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-dm-sans);
+  --font-serif: var(--font-source-serif);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -76,6 +78,12 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* BPTAP brand */
+  --bptap-blue:  #27aae1;
+  --bptap-teal:  #138788;
+  --bptap-dark:  #020e3c;
+  --bptap-orange: #fe7105;
 }
 
 .dark {
@@ -112,49 +120,240 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* ─── Base layer ──────────────────────────────────────────────────────────── */
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
+  html {
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "ss01" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-white text-gray-900;
+    font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+    /* fluid base: 15px @ 375px — 17px @ 1920px */
+    font-size: clamp(0.97rem, 0.90rem + 0.28vw, 1.0625rem);
+    line-height: 1.7;
+    letter-spacing: -0.01em;
+  }
+
+  /* ── Headings — Source Serif 4 for editorial authority ── */
+  h1, h2, h3 {
+    font-family: 'Source Serif 4', ui-serif, Georgia, serif;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: #111827;
+  }
+
+  /* UI headings stay in DM Sans */
+  h4, h5, h6 {
+    font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: #111827;
+  }
+
+  /*
+   * Fluid type scale — clamp(min, preferred, max)
+   * Viewport range: 375px (sm) -> 1536px (2xl)
+   */
+
+  /* h1: 30px -> 56px */
+  h1 {
+    font-size: clamp(1.875rem, 1.25rem + 2.67vw, 3.5rem);
+    line-height: 1.1;
+  }
+
+  /* h2: 24px -> 42px */
+  h2 {
+    font-size: clamp(1.5rem, 1.05rem + 1.9vw, 2.625rem);
+    line-height: 1.18;
+  }
+
+  /* h3: 20px -> 32px */
+  h3 {
+    font-size: clamp(1.25rem, 0.95rem + 1.27vw, 2rem);
+    line-height: 1.25;
+  }
+
+  /* h4: 16px -> 22px */
+  h4 {
+    font-size: clamp(1rem, 0.88rem + 0.51vw, 1.375rem);
+    line-height: 1.35;
+  }
+
+  /* h5, h6: 14px -> 18px */
+  h5, h6 {
+    font-size: clamp(0.875rem, 0.79rem + 0.36vw, 1.125rem);
+    line-height: 1.4;
+  }
+
+  /* body copy: 15px -> 17px — never tiny on 2xl */
+  p {
+    font-size: clamp(0.9375rem, 0.88rem + 0.24vw, 1.0625rem);
+    line-height: 1.75;
+  }
+
+  /* Lead / intro paragraphs */
+  p.lead {
+    font-size: clamp(1.0625rem, 0.95rem + 0.48vw, 1.25rem);
+    line-height: 1.65;
+    color: #080c11;
+  }
+
+  /* Captions, meta, badges */
+  small, .text-meta {
+    font-size: clamp(0.75rem, 0.71rem + 0.17vw, 0.875rem);
+    line-height: 1.5;
+  }
+
+  /* Links inherit color by default, no underline */
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Code */
+  code, kbd, samp, pre {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: 0.875em;
   }
 }
 
+/* ─── Typography utilities ────────────────────────────────────────────────── */
 
-
-:root {
-  --primary-blue: #1338BE;
-  --secondary-blue: #63C5DA;
-  --black: #000000;
-  --white: #FFFFFF;
+/* Page-level display headings — very large, editorial */
+.display-heading {
+  font-family: 'Source Serif 4', ui-serif, Georgia, serif;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
 }
 
-@layer base {
-  body {
-    @apply bg-white text-black;
-  }
+/* Small all-caps labels (eyebrows, badges, table headers) */
+.label-caps {
+  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
-/* Custom gradient effects */
-.blue-gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-[#63C5DA] to-[#1338BE];
+/* Tabular numbers everywhere they're needed */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
-.navbar-underline {
-  @apply absolute -bottom-1 left-0 w-0 h-[2px] bg-gradient-to-r from-[#63C5DA] to-[#1338BE] group-hover:w-full transition-all duration-300 ease-in-out;
-}
+/* ─── BPTAP design system utilities ──────────────────────────────────────── */
 
-/* Card hover effects */
-.feature-card {
-  @apply transition-all duration-300 hover:shadow-lg;
-}
-
-/* Button effects */
+/* Primary action button */
 .btn-primary {
-  @apply bg-[#1338BE] hover:bg-[#63C5DA] text-white transition-colors duration-300;
+  @apply bg-[#27aae1] hover:bg-[#1a8fc4] active:bg-[#1279a8] text-white
+         text-sm font-bold px-5 py-2.5 transition-colors duration-150
+         focus:outline-none focus-visible:ring-2 focus-visible:ring-[#27aae1] focus-visible:ring-offset-2;
 }
 
+/* Ghost/outline button */
 .btn-outline {
-  @apply border-[#1338BE] text-[#1338BE] hover:bg-[#1338BE] hover:text-white transition-colors duration-300;
+  @apply border-2 border-gray-900 text-gray-900 text-sm font-bold px-5 py-2.5
+         hover:bg-gray-900 hover:text-white transition-colors duration-150
+         focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2;
+}
+
+/* Section eyebrow (the "BPTAP · Kenya" lines) */
+.eyebrow {
+  @apply flex items-center gap-3;
+}
+.eyebrow::before {
+  content: '';
+  @apply block h-px w-8 bg-[#27aae1] flex-shrink-0;
+}
+.eyebrow span {
+  @apply text-xs font-bold uppercase tracking-[0.2em] text-[#27aae1];
+}
+
+/* Card hover accent line */
+.card-accent {
+  @apply absolute top-0 left-0 right-0 h-0.5 bg-[#27aae1]
+         -translate-x-full group-hover:translate-x-0 transition-transform duration-300;
+}
+
+/* NICE-style inset blockquote / vision block */
+.inset-block {
+  @apply border-l-4 border-[#27aae1] bg-[#f0f9ff] px-6 py-5;
+}
+
+/* ─── Prose overrides for dangerouslySetInnerHTML content ─────────────────── */
+
+.prose-bptap {
+  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: #374151;
+}
+
+.prose-bptap a {
+  color: #27aae1;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.prose-bptap strong {
+  color: #111827;
+  font-weight: 700;
+}
+
+.prose-bptap ul {
+  list-style: none;
+  padding: 0;
+}
+
+.prose-bptap ul li::before {
+  content: '–';
+  color: #27aae1;
+  font-weight: 700;
+  margin-right: 0.5rem;
+}
+
+.prose-bptap ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+
+/* ─── Scrollbar ───────────────────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #27aae1;
+}
+
+
+:focus-visible {
+  outline: 2px solid #27aae1;
+  outline-offset: 2px;
+}
+
+
+::selection {
+  background-color: #27aae1;
+  color: #ffffff;
 }

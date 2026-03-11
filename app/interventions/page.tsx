@@ -101,14 +101,13 @@ function InterventionsPageInner({
     <>
     <Navbar/>
     <div className="min-h-screen bg-white mt-8 ">
-
      <div className="bg-white border-b border-gray-200 py-6">
         <div className="container mx-auto px-4 sm:px-6 py-8">
             <h1 className="text-3xl tracking-tight leading-tight mb-3">
             Towards Advancing Universal Health Coverage in Kenya
             </h1>
 
-            <p className="text-base text-gray-800 max-w-4xl leading-relaxed">
+            <p className="text-base text-gray-800 max-w-4xl ">
             The Benefits Package and Tariffs Advisory Panel (BPTAP) supports transparent,
             evidence-informed healthcare decision-making in Kenya through independent
             assessment and guidance. Our work strengthens the operationalization of the

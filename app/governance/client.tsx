@@ -81,25 +81,25 @@ function MemberCard({ member, index }: { member: Governance; index: number }) {
 
       {/* Info */}
       <div className="text-center space-y-1.5 w-full">
-        <h3 className="text-sm font-bold text-gray-900 leading-snug">
+        <h3 className="text-lg font-bold text-gray-900 leading-snug">
           {member.title ? `${member.title} ` : ''}{member.name}
         </h3>
 
         {member.role && (
-          <p className="text-xs font-semibold text-[#27aae1] uppercase tracking-wide">
+          <p className="text-base font-semibold text-[#27aae1] uppercase tracking-wide">
             {member.role}
           </p>
         )}
 
         {member.from_organization && (
-          <p className="text-xs text-gray-500 flex items-center justify-center gap-1 leading-snug">
+          <p className="text-base text-gray-500 flex items-center justify-center gap-1 leading-snug">
             <Building2 className="w-3 h-3 flex-shrink-0" />
             <span className="italic">{member.from_organization}</span>
           </p>
         )}
 
         {member.description && (
-          <p className="text-xs text-gray-400 leading-relaxed pt-1 border-t border-gray-100 mt-2">
+          <p className="text-base text-gray-400 leading-relaxed pt-1 border-t border-gray-100 mt-2">
             {member.description}
           </p>
         )}
@@ -148,10 +148,10 @@ function MandateBlock({
       <div className="border-b border-gray-200 px-8 py-6">
         <div className="flex items-center gap-3 mb-1">
           <div className="h-px w-8 bg-[#27aae1]" />
-          <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#27aae1]">Mandate</span>
+          <span className="text-base font-bold uppercase tracking-[0.2em] text-[#27aae1]">Mandate</span>
         </div>
         <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight">{title}</h3>
-        <p className="text-sm text-gray-500 mt-1">{subtitle}</p>
+        <p className="text-lg text-gray-500 mt-1">{subtitle}</p>
       </div>
 
       {/* Items */}
@@ -166,15 +166,15 @@ function MandateBlock({
               transition={{ delay: i * 0.08, duration: 0.4 }}
               className="flex items-start gap-5 px-8 py-5"
             >
-              <span className="text-xs font-black text-gray-200 tabular-nums mt-0.5 w-5 flex-shrink-0">
+              <span className="text-base font-black text-gray-200 tabular-nums mt-0.5 w-5 flex-shrink-0">
                 {String(item.num).padStart(2, '0')}
               </span>
-              <p className="text-sm text-gray-700 leading-relaxed">{item.text}</p>
+              <p className="text-lg text-gray-700 leading-relaxed">{item.text}</p>
             </motion.div>
           ))
         ) : (
           <div className="px-8 py-6">
-            <p className="text-sm text-gray-700 leading-relaxed">{(items as { text: string }).text}</p>
+            <p className="text-lg text-gray-700 leading-relaxed">{(items as { text: string }).text}</p>
           </div>
         )}
       </div>
@@ -193,12 +193,12 @@ function SectionHeader({ eyebrow, title, description }: { eyebrow: string; title
     >
       <div className="flex items-center gap-3 mb-4">
         <div className="h-px w-8 bg-[#27aae1]" />
-        <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#27aae1]">{eyebrow}</span>
+        <span className="text-base font-bold uppercase tracking-[0.2em] text-[#27aae1]">{eyebrow}</span>
       </div>
       <h2 className="text-2xl lg:text-3xl  font-extrabold text-gray-900 tracking-tight leading-tight mb-2">
         {title}
       </h2>
-      <p className="text-base text-gray-500">{description}</p>
+      <p className="text-xl ">{description}</p>
     </motion.div>
   )
 }

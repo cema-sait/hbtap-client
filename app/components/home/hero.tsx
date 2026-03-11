@@ -40,10 +40,10 @@ export default function HeroSection() {
   }, [paused, next])
 
   return (
-    <section className="bg-white border-b-2 border-gray-900 mt-8">
+    <section className="bg-white   mt-8">
 
 
-      <div className="container  mx-auto px-4 sm:px-6">
+      <div className="container border-b-2  border-gray-900  mx-auto px-4 sm:px-6">
         <div className="grid lg:grid-cols-2 gap-0 min-h-[540px]">
 
           <div className="flex flex-col justify-center py-14 lg:pr-16 lg:border-r border-gray-200">
@@ -63,7 +63,7 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.16 }}
-              className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-lg mb-10"
+              className="text-xl  leading-relaxed max-w-lg mb-10"
             >
               The Benefits Package and Tariffs Advisory Panel is committed to
               promoting transparent, evidence-informed approaches to healthcare

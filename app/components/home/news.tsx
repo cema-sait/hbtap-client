@@ -66,14 +66,14 @@ function NewsCard({ news, index }: { news: NewsItem; index: number }) {
         </div>
 
         {/* Title */}
-        <h3 className="text-base font-bold text-gray-900 leading-snug mb-2 line-clamp-2 group-hover:text-[#27aae1] transition-colors duration-150">
+        <h3 className="text-lg font-bold text-gray-900 leading-snug mb-2 line-clamp-2 group-hover:text-[#27aae1] transition-colors duration-150">
           <Link href={`/news/${slug}`} className="focus:outline-none focus-visible:underline">
             {news.title}
           </Link>
         </h3>
 
         {/* Excerpt */}
-        <p className="text-sm text-gray-600 leading-relaxed line-clamp-3 flex-1 mb-5">
+        <p className="text-base leading-relaxed line-clamp-3 flex-1 mb-5">
           {news.excerpt}
         </p>
 
@@ -116,7 +116,7 @@ export default function NewsSection() {
     .reverse()
 
   return (
-    <section className="bg-white border-b border-gray-200">
+    <section className="bg-white">
       {/* ── Header band ── */}
       <div className="border-b border-gray-200">
         <div className="container mx-auto px-4 sm:px-6 py-10">
@@ -146,7 +146,7 @@ export default function NewsSection() {
 
               <motion.p
                 variants={headVariants}
-                className="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed"
+                className="mt-4 text-xl leading-relaxed"
               >
                 Stay updated with the latest developments in healthcare assessment, policy
                 updates, and our ongoing initiatives.
