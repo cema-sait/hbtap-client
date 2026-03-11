@@ -114,7 +114,7 @@ const Aside = ({ isOpen, onToggle, user }: AsideProps) => {
       title: "Interventions",
       icon: <BarChart3 className="h-5 w-5" />,
       children: [
-        { title: "Dashboard",             href: "/portal/interventions",                    icon: <LayoutDashboard className="h-4 w-4" /> },
+        { title: "All Proposals",             href: "/portal/interventions",                    icon: <LayoutDashboard className="h-4 w-4" /> },
       ]
   };
 
@@ -127,9 +127,10 @@ const Aside = ({ isOpen, onToggle, user }: AsideProps) => {
         { title: "Score Interventions",       href: "/portal/proposal-selection/score",    icon: <SlidersHorizontal className="h-4 w-4" /> },
       ],
     },
+    sharedAll,
     sharedCalendarEvents,
     sharedTaskManagement,
-    sharedAll,
+
   ];
 
 

@@ -42,6 +42,8 @@ import {
   Layers,
 } from "lucide-react";
 import { InterventionScoreReport } from "@/types/new/scoring";
+import { useRouter } from "next/navigation";
+
 
 
 export interface ReportTableProps {
@@ -128,6 +130,7 @@ export function ReportTable({ items, onViewDetails }: ReportTableProps) {
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const paginatedItems = items.slice(startIndex, endIndex);
+    const router = useRouter();
 
   const handlePageSizeChange = (size: string) => {
     setPageSize(Number(size));
@@ -234,8 +237,16 @@ export function ReportTable({ items, onViewDetails }: ReportTableProps) {
                     {/* Reference */}
                     <TableCell className="align-top pt-3">
                       <span className="text-xs font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded whitespace-nowrap">
-                        {item.reference_number}
+                         <button
+                          onClick={() =>
+                            router.push(`/portal/interventions/${item.intervention_id}`)
+                          }
+                          className="font-mono  text-xs bg-slate-100 hover:bg-[#27aae1]/10 hover:text-[#27aae1] px-2 py-1 rounded transition-colors text-[#27aae1] whitespace-nowrap"
+                        >
+                          {item.reference_number ?? "—"}
+                        </button>  
                       </span>
+                    
                     </TableCell>
 
                     {/* Name */}

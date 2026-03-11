@@ -107,7 +107,7 @@ export default function ScoringReportPage() {
     return items;
   }, [report, statusFilter, categoryFilter, search]);
 
-  // ── Export ───────────────────────────────────────────────────────────────
+
   const handleExport = () => {
     if (!report || filtered.length === 0) return;
     exportScoringReportCSV(filtered);
@@ -252,10 +252,10 @@ export default function ScoringReportPage() {
               Export CSV respects active filters and includes per-reviewer columns.
             </p>
 
-
+{/* 
             <div className="border-t border-slate-200 pt-6">
   <ScoringAnalytics report={report} />
-</div>
+</div> */}
 
             <div className="border-t border-slate-200 pt-6">
               <ScoreList />

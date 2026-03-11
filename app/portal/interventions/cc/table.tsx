@@ -82,16 +82,16 @@ export function InterventionsTable({
   const router = useRouter();
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm bg-white">
+    <div className="overflow-x-auto  border border-slate-200 shadow-sm bg-white">
       <table className="w-full text-sm">
         <thead className="bg-slate-50 border-b border-slate-200">
           <tr>
             <th className={`${TH} w-10 text-center`}>Count</th>
             <th className={`${TH} w-32`}>Ref No.</th>
-            <th className={TH}>Intervention Name</th>
+            <th className={`${TH} min-w-60`}>Intervention Name</th>
             <th className={`${TH} w-28`}>Date Submitted</th>
             <th className={`${TH} w-32`}>Type</th>
-            <th className={`${TH} w-48`}>Proposed Beneficiary</th>
+            <th className={`${TH} min-w-45`}>Proposed Beneficiary</th>
             <th className={`${TH} w-48`}>Documents</th>
           </tr>
         </thead>
@@ -120,7 +120,7 @@ export function InterventionsTable({
                 </td>
 
                 <td className={TD}>
-                  <p className="text-sm font-medium text-slate-800 leading-snug line-clamp-3 max-w-xs lg:max-w-md">
+                 <p className="text-xs font-medium text-slate-800 leading-snug line-clamp-2 max-w-xl lg:max-w-xl">
                     {p.intervention_name ?? (
                       <span className="text-slate-300 italic">Untitled</span>
                     )}
@@ -128,7 +128,7 @@ export function InterventionsTable({
                 </td>
 
                 {/* Date */}
-                <td className={`${TD} text-xs text-slate-500 whitespace-nowrap`}>
+                <td className={`${TD} text-xs text-slate-600 whitespace-nowrap`}>
                   {p.date ? new Date(p.date).toLocaleDateString("en-GB") : "—"}
                 </td>                
 
@@ -139,7 +139,7 @@ export function InterventionsTable({
 
 
                 <td className={TD}>
-                  <p className="text-xs text-slate-600 line-clamp-3 max-w-45">
+                  <p className="text-xs text-slate-700 line-clamp-2 max-w-90">
                     {p.beneficiary ?? "—"}
                   </p>
                 </td>

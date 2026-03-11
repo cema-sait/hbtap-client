@@ -28,7 +28,7 @@ export interface Column<T> {
   accessor?: keyof T;
   cell?: (row: T) => React.ReactNode;
   className?: string;
-  width?: string; // e.g. "w-32" or "w-[120px]"
+  width?: string;
 }
 
 export interface CategoryFilterOption {
@@ -41,9 +41,13 @@ interface DataTableProps<T> {
   columns: Column<T>[];
   searchPlaceholder?: string;
   searchFn?: (row: T, query: string) => boolean;
-  // Category filter
   categories?: CategoryFilterOption[];
   categoryFilterFn?: (row: T, categoryId: string) => boolean;
+  dateFilterFn?: (row: T, from: string, to: string) => boolean;
+  sortFns?: {
+    latest?: (a: T, b: T) => number;
+    az?: (a: T, b: T) => number;
+  };
 }
 
 export function DataTable<T>({
@@ -53,21 +57,35 @@ export function DataTable<T>({
   searchFn,
   categories,
   categoryFilterFn,
+  dateFilterFn,
+  sortFns,
 }: DataTableProps<T>) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(25);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [sortOrder, setSortOrder] = useState<"latest" | "az">("latest");
 
-  const filtered = data.filter((row) => {
-    const matchesSearch = query && searchFn
-      ? searchFn(row, query.toLowerCase())
-      : true;
-    const matchesCategory = selectedCategory !== "all" && categoryFilterFn
-      ? categoryFilterFn(row, selectedCategory)
-      : true;
-    return matchesSearch && matchesCategory;
-  });
+  const filtered = data
+    .filter((row) => {
+      const matchesSearch = query && searchFn
+        ? searchFn(row, query.toLowerCase())
+        : true;
+      const matchesCategory = selectedCategory !== "all" && categoryFilterFn
+        ? categoryFilterFn(row, selectedCategory)
+        : true;
+      const matchesDate = (dateFrom || dateTo) && dateFilterFn
+        ? dateFilterFn(row, dateFrom, dateTo)
+        : true;
+      return matchesSearch && matchesCategory && matchesDate;
+    })
+    .sort((a, b) => {
+      if (sortFns?.latest && sortOrder === "latest") return sortFns.latest(a, b);
+      if (sortFns?.az && sortOrder === "az") return sortFns.az(a, b);
+      return 0;
+    });
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const safePage = Math.min(page, totalPages - 1);
@@ -79,12 +97,24 @@ export function DataTable<T>({
   const goTo = (p: number) => setPage(Math.min(Math.max(0, p), totalPages - 1));
   const resetPage = () => setPage(0);
 
-  const activeFilters = (query ? 1 : 0) + (selectedCategory !== "all" ? 1 : 0);
+  const activeFilters =
+    (query ? 1 : 0) +
+    (selectedCategory !== "all" ? 1 : 0) +
+    (dateFrom || dateTo ? 1 : 0);
+
+  const clearAll = () => {
+    setQuery("");
+    setSelectedCategory("all");
+    setDateFrom("");
+    setDateTo("");
+    resetPage();
+  };
 
   return (
     <div className="space-y-3">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2">
+        {/* Search */}
         {searchFn && (
           <div className="relative flex-1 min-w-[200px] max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
@@ -117,15 +147,54 @@ export function DataTable<T>({
           </Select>
         )}
 
-        {/* Active filter chips */}
+        {/* Date range */}
+        {dateFilterFn && (
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-slate-400 whitespace-nowrap">From</span>
+            <Input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => { setDateFrom(e.target.value); resetPage(); }}
+              className="h-8 w-36 text-xs border-slate-200 bg-white"
+            />
+            <span className="text-xs text-slate-400">to</span>
+            <Input
+              type="date"
+              value={dateTo}
+              onChange={(e) => { setDateTo(e.target.value); resetPage(); }}
+              className="h-8 w-36 text-xs border-slate-200 bg-white"
+            />
+          </div>
+        )}
+
+        {/* Sort */}
+        {sortFns && (
+          <Select
+            value={sortOrder}
+            onValueChange={(v) => setSortOrder(v as "latest" | "az")}
+          >
+            <SelectTrigger className="h-8 w-32 text-sm border-slate-200 bg-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="latest" className="text-sm">Latest first</SelectItem>
+              <SelectItem value="az" className="text-sm">A → Z</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+
+        {/* Clear filters */}
         {activeFilters > 0 && (
           <button
-            onClick={() => { setQuery(""); setSelectedCategory("all"); resetPage(); }}
+            onClick={clearAll}
             className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 border border-slate-200 rounded-md px-2 h-8 bg-white transition-colors"
           >
             <X className="h-3 w-3" />
             Clear filters
-            <Badge variant="secondary" className="h-4 w-4 p-0 flex items-center justify-center text-[10px]">
+            <Badge
+              variant="secondary"
+              className="h-4 w-4 p-0 flex items-center justify-center text-[10px]"
+            >
               {activeFilters}
             </Badge>
           </button>
@@ -177,13 +246,20 @@ export function DataTable<T>({
                       key={j}
                       className={`py-3 align-top max-w-0 overflow-hidden ${col.width ?? ""} ${col.className ?? ""}`}
                     >
-                      {col.cell ? col.cell(row) : col.accessor ? String(row[col.accessor] ?? "—") : null}
+                      {col.cell
+                        ? col.cell(row)
+                        : col.accessor
+                        ? String(row[col.accessor] ?? "—")
+                        : null}
                     </TableCell>
                   ))}
                 </TableRow>
               )) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-32 text-center text-sm text-slate-400">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-32 text-center text-sm text-slate-400"
+                  >
                     No records found.
                   </TableCell>
                 </TableRow>

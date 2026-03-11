@@ -133,7 +133,7 @@ function AboutSection() {
                   <div className="mt-1 w-5 h-5 flex-shrink-0 bg-[#27aae1]/10 border border-[#27aae1]/30 flex items-center justify-center">
                     <CheckCircle className="w-3 h-3 text-[#27aae1]" strokeWidth={2.5} />
                   </div>
-                  <p className="text-xl leading-relaxed">{objective}</p>
+                  <p className="text-lg leading-relaxed">{objective}</p>
                 </motion.li>
               ))}
             </motion.ul>
@@ -159,8 +159,8 @@ function MissionSection() {
             variants={containerVariants}
           >
             <motion.div variants={itemVariants} className="flex items-center gap-3 mb-4">
-              <div className="h-px w-8 bg-[#27aae1]" />
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#27aae1]">Our Mission</span>
+              {/* <div className="h-px w-8 bg-[#27aae1]" /> */}
+              {/* <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#27aae1]">Our Mission</span> */}
             </motion.div>
 
             <motion.h2
@@ -188,7 +188,7 @@ function MissionSection() {
               className="border-l-4 border-[#27aae1] bg-[#f0f9ff] px-6 py-5"
             >
               <h4 className="text-base font-bold uppercase tracking-widest text-gray-900 mb-2">Our Vision</h4>
-              <p className="text-xl leading-relaxed">
+              <p className="text-lg leading-relaxed">
                 To be the leading authority in evidence-informed healthcare decision-making,
                 contributing significantly to the achievement of Universal Health Coverage in Kenya.
               </p>
@@ -299,7 +299,7 @@ function WhatIsHTASection() {
                 <span className="text-xs font-black text-gray-300 tabular-nums mt-0.5 w-4 flex-shrink-0">
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <p className="text-xl leading-relaxed">{point}</p>
+                <p className="text-lg leading-relaxed">{point}</p>
               </motion.div>
             ))}
           </motion.div>

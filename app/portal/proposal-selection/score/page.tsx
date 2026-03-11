@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  ClipboardCheck, RefreshCw, ChevronRight, MapPin, Building2, CheckCircle2, Eye,
+  ClipboardCheck, RefreshCw, ChevronRight, CheckCircle2, Eye,
 } from "lucide-react";
 import { SubmittedProposal } from "@/types/dashboard/submittedProposals";
 import { SystemCategory } from "@/types/new/client";
@@ -19,7 +19,6 @@ export default function SelectionListPage() {
   const [proposals, setProposals] = useState<SubmittedProposal[]>([]);
   const [scoredIds, setScoredIds] = useState<Set<string>>(new Set());
   const [categories, setCategories] = useState<SystemCategory[]>([]);
-  // Map: intervention id → category ids
   const [interventionCategoryMap, setInterventionCategoryMap] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -38,7 +37,6 @@ export default function SelectionListPage() {
       setScoredIds(new Set(scoresRes.map((s) => String(s.intervention))));
       setCategories(cats);
 
-      // Build map: intervention id → [category ids]
       const map: Record<string, string[]> = {};
       allLinks.forEach((link) => {
         const key = String(link.intervention);
@@ -55,58 +53,63 @@ export default function SelectionListPage() {
   useEffect(() => { load(); }, [load]);
 
   const categoryOptions: CategoryFilterOption[] = categories.map((c) => ({
-    id: c.id,
+    id: String(c.id),
     name: c.name,
   }));
 
   const columns: Column<SubmittedProposal>[] = [
     {
       header: "Ref",
-      width: "w-28",
+      width: "w-56",
       cell: (row) => (
-        <span className="text-xs font-mono text-slate-400 whitespace-nowrap">{row.reference_number}</span>
+        <span className="text-xs font-mono text-slate-400 whitespace-nowrap ">
+          <button
+            onClick={() =>
+              router.push(`/portal/interventions/${row.id}`)
+            }
+            className="font-mono  text-xs bg-slate-100 hover:bg-[#27aae1]/10 hover:text-[#27aae1] px-2 py-1 rounded transition-colors text-[#27aae1] whitespace-nowrap"
+          >
+            {row.reference_number ?? "—"}
+          </button>
+        </span>
       ),
     },
     {
       header: "Intervention",
-      // no fixed width — takes remaining space, truncates
       cell: (row) => (
         <div>
-          <p className="font-medium text-slate-800 text-sm leading-snug truncate">
+          <p className="font-medium text-slate-800 text-sm leading-snug line-clamp-2 min-w-[240px]">
             {row.intervention_name ?? "Untitled"}
           </p>
-          {row.intervention_type && (
+          {/* {row.intervention_type && (
             <Badge variant="secondary" className="text-[10px] mt-1 font-normal h-4 px-1.5">
               {row.intervention_type}
             </Badge>
-          )}
+          )} */}
         </div>
       ),
     },
     {
-      header: "Submitter",
-      width: "w-44",
-      cell: (row) => (
-        <div className="text-sm">
-          <p className="text-slate-700 truncate">{row.name}</p>
-          {row.organization && (
-            <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5 truncate">
-              <Building2 className="h-3 w-3 shrink-0" />
-              <span className="truncate">{row.organization}</span>
-            </p>
-          )}
-        </div>
-      ),
-    },
-    {
-      header: "County",
-      width: "w-28",
-      cell: (row) => row.county ? (
-        <span className="flex items-center gap-1 text-sm text-slate-600 whitespace-nowrap">
-          <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
-          <span className="truncate">{row.county}</span>
-        </span>
-      ) : <span className="text-slate-300">—</span>,
+      header: "Categories",
+      width: "w-52",
+      cell: (row) => {
+        const catIds = interventionCategoryMap[String(row.id)] ?? [];
+        const matched = categories.filter((c) => catIds.includes(String(c.id)));
+        if (!matched.length) return <span className="text-slate-300 text-xs">—</span>;
+        return (
+          <div className="flex flex-wrap gap-1">
+            {matched.map((c) => (
+              <Badge
+                key={c.id}
+                variant="outline"
+                className="text-[10px] font-normal px-1.5 h-8 text-slate-600 border-slate-200 whitespace-nowrap"
+              >
+                {c.name}
+              </Badge>
+            ))}
+          </div>
+        );
+      },
     },
     {
       header: "Date",
@@ -201,9 +204,9 @@ export default function SelectionListPage() {
             <DataTable
               data={proposals}
               columns={columns}
-              searchPlaceholder="Search by name, county, organisation..."
+              searchPlaceholder="Search by name, reference, category..."
               searchFn={(row, q) =>
-                [row.intervention_name, row.name, row.county, row.organization, row.reference_number]
+                [row.intervention_name, row.reference_number]
                   .filter(Boolean)
                   .some((v) => v!.toLowerCase().includes(q))
               }
@@ -211,6 +214,16 @@ export default function SelectionListPage() {
               categoryFilterFn={(row, categoryId) =>
                 (interventionCategoryMap[String(row.id)] ?? []).includes(categoryId)
               }
+              dateFilterFn={(row, from, to) => {
+                const d = new Date(row.date).getTime();
+                const f = from ? new Date(from).getTime() : null;
+                const t = to ? new Date(to).getTime() : null;
+                return (!f || d >= f) && (!t || d <= t);
+              }}
+              sortFns={{
+                latest: (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+                az: (a, b) => (a.intervention_name ?? "").localeCompare(b.intervention_name ?? ""),
+              }}
             />
           )}
         </CardContent>

@@ -321,7 +321,7 @@ export default function BrowseByCategoryPage() {
                   <TableHeader>
                     <TableRow className="bg-slate-50 hover:bg-slate-50 border-b border-slate-200">
                       <TableHead className="w-10 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-400">#</TableHead>
-                      <TableHead className="w-28 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Reference</TableHead>
+                      <TableHead className="w-56 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Reference</TableHead>
                       <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Intervention Name</TableHead>
                       <TableHead className="w-28 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Type</TableHead>
                       <TableHead className="w-28 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-400">Review Status</TableHead>
@@ -337,8 +337,15 @@ export default function BrowseByCategoryPage() {
                         </TableCell>
 
                         <TableCell>
-                          <span className="text-xs font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
-                            {proposal.reference_number}
+                          <span className="text-xs font-mono text-slate-400 whitespace-nowrap ">
+                            <button
+                              onClick={() =>
+                                router.push(`/portal/interventions/${proposal.id}`)
+                              }
+                              className="font-mono  text-xs bg-slate-100 hover:bg-[#27aae1]/10 hover:text-[#27aae1] px-2 py-1 rounded transition-colors text-[#27aae1] whitespace-nowrap"
+                            >
+                              {proposal.reference_number ?? "—"}
+                            </button>
                           </span>
                         </TableCell>
 
