@@ -120,11 +120,11 @@ const Aside = ({ isOpen, onToggle, user }: AsideProps) => {
   const userSwgNavItems: NavItem[] = [
     sharedAll,
     {
-      title: "Proposal Selection",
+      title: "Topic Prioritization",
       icon: <ClipboardCheck className="h-5 w-5" />,
       children: [
-        { title: "Interventions by Category", href: "/portal/proposal-selection/category", icon: <LayoutDashboard className="h-4 w-4" /> },
-        { title: "Score Interventions",       href: "/portal/proposal-selection/score",    icon: <SlidersHorizontal className="h-4 w-4" /> },
+        { title: "Score Intervention", href: "/portal/tp/category", icon: <LayoutDashboard className="h-4 w-4" /> },
+        // { title: "Score Interventions",       href: "/portal/tp/score",    icon: <SlidersHorizontal className="h-4 w-4" /> },
       ],
     },
 
@@ -143,20 +143,22 @@ const Aside = ({ isOpen, onToggle, user }: AsideProps) => {
       children: [
         { title: "Criteria Selection", href: "/portal/config/selection-tool",  icon: <SlidersHorizontal className="h-4 w-4" /> },
         { title: "System Categories",  href: "/portal/config/system-category", icon: <Layers className="h-4 w-4" /> },
+        
+                { title: "Assign System Categories",  href: "/portal/config/assign",   icon: <Layers className="h-4 w-4" /> },
         { title: "Criteria Information",  href: "/portal/config/criteria-information", icon: <BookText className="h-4 w-4" /> }
       ],
     },
     
 
-    
+
     {
-      title: "Proposal Selection",
+      title: "Topic Prioritization",
       icon: <ClipboardCheck className="h-5 w-5" />,
       children: [
-        { title: "Assign System Categories",  href: "/portal/proposal-selection/assign",   icon: <Layers className="h-4 w-4" /> },
-        { title: "Interventions by Category", href: "/portal/proposal-selection/category", icon: <LayoutDashboard className="h-4 w-4" /> },
-        { title: "Score Interventions",       href: "/portal/proposal-selection/score",    icon: <SlidersHorizontal className="h-4 w-4" /> },
-        { title: "Scoring Reports",           href: "/portal/proposal-selection/reports",  icon: <BarChart3 className="h-4 w-4" /> },
+
+        { title: "Interventions by Category", href: "/portal/tp/category", icon: <LayoutDashboard className="h-4 w-4" /> },
+        // { title: "Score Interventions",       href: "/portal/tp/score",    icon: <SlidersHorizontal className="h-4 w-4" /> },
+        { title: "Scoring Reports",           href: "/portal/tp/reports",  icon: <BarChart3 className="h-4 w-4" /> },
       ],
     },
 

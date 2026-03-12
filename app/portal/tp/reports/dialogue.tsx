@@ -24,11 +24,10 @@ import {
 } from "lucide-react";
 import { InterventionScoreReport } from "@/types/new/scoring";
 
-// ── Constants ──────────────────────────────────────────────────────────────────
 
 const BRAND = "#27aae1";
 
-// ── Types ──────────────────────────────────────────────────────────────────────
+
 
 export interface InterventionDetailDialogProps {
   item: InterventionScoreReport | null;

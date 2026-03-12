@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { InterventionScore } from "@/types/new/client";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
@@ -14,20 +13,21 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  Search, ChevronLeft, ChevronRight, CheckCircle2, Circle,
+  Search, ChevronLeft, ChevronRight, CheckCircle2,
   TrendingUp, Send, Loader2,
 } from "lucide-react";
 import { CriteriaGroup, DraftScore } from "@/types/new/score";
 
 interface Props {
   groups: CriteriaGroup[];
-  drafts: Record<string, DraftScore>;    
+  drafts: Record<string, DraftScore>;
   onDraftChange: (label: string, draft: DraftScore | null) => void;
   onSubmitAll: () => Promise<void>;
   isSubmitting: boolean;
-  // Read-only mode (already scored)
   readOnly?: boolean;
   savedScores?: InterventionScore[];
+  onActiveCriteriaChange?: (label: string) => void;
+  interventionId: string;
 }
 
 function ScoreBadge({ value }: { value: number }) {
@@ -43,14 +43,54 @@ function ScoreBadge({ value }: { value: number }) {
 }
 
 export function ScoringWizard({
-  groups, drafts, onDraftChange, onSubmitAll, isSubmitting, readOnly = false, savedScores = [],
+  groups,
+  drafts,
+  onDraftChange,
+  onSubmitAll,
+  isSubmitting,
+  readOnly = false,
+  savedScores = [],
+  onActiveCriteriaChange,
+  interventionId,
 }: Props) {
   const [step, setStep] = useState(0);
   const [query, setQuery] = useState("");
   const [comment, setComment] = useState(drafts[groups[step]?.criteria]?.comment ?? "");
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  // Filter groups by search
+  const STORAGE_KEY = `scoring-drafts:${interventionId}`;
+
+  // Load drafts once on mount (edit mode only)
+  useEffect(() => {
+    if (readOnly) return;
+
+    try {
+      const savedJson = localStorage.getItem(STORAGE_KEY);
+      if (!savedJson) return;
+
+      const parsed = JSON.parse(savedJson) as Record<string, DraftScore>;
+
+      Object.entries(parsed).forEach(([criteriaLabel, draft]) => {
+        if (groups.some(g => g.criteria === criteriaLabel)) {
+          onDraftChange(criteriaLabel, draft);
+        }
+      });
+    } catch (err) {
+      console.warn("[ScoringWizard] Failed to load drafts", err);
+    }
+  }, []); 
+
+
+  useEffect(() => {
+    if (readOnly || Object.keys(drafts).length === 0) return;
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts));
+    } catch (err) {
+      console.warn("[ScoringWizard] Failed to save drafts", err);
+    }
+  }, [drafts, readOnly]);
+
   const filtered = useMemo(() =>
     query
       ? groups.filter((g) =>
@@ -61,13 +101,16 @@ export function ScoringWizard({
     [groups, query]
   );
 
-  // Clamp step when filter changes
   const clampedStep = Math.min(step, Math.max(0, filtered.length - 1));
   const current = filtered[clampedStep];
-
   const currentDraft = current ? drafts[current.criteria] : undefined;
 
-  // Totals
+  useEffect(() => {
+    if (current?.criteria) {
+      onActiveCriteriaChange?.(current.criteria);
+    }
+  }, [current?.criteria, onActiveCriteriaChange]);
+
   const totalScore = useMemo(
     () => Object.values(drafts).reduce((s, d) => s + (d?.score_value ?? 0), 0),
     [drafts]
@@ -80,7 +123,6 @@ export function ScoringWizard({
   const pct = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
   const allScored = draftedCount === groups.length;
 
-  // For read-only: map tool_id → saved score
   const savedByToolId = useMemo(() => {
     const map = new Map<string, InterventionScore>();
     for (const s of savedScores) {
@@ -137,16 +179,31 @@ export function ScoringWizard({
     setStep(idx);
   };
 
-  if (!current) return (
-    <Card className="border-slate-200">
-      <CardContent className="py-16 text-center text-slate-400 text-sm">No criteria match your search.</CardContent>
-    </Card>
-  );
+  if (!current) {
+    return (
+      <Card className="border-slate-200">
+        <CardContent className="py-16 text-center text-slate-400 text-sm">
+          No criteria match your search.
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const handleConfirmSubmit = async () => {
+    setConfirmOpen(false);
+    try {
+      await onSubmitAll();
+      localStorage.removeItem(STORAGE_KEY);
+      groups.forEach(g => onDraftChange(g.criteria, null));
+    } catch (err) {
+      console.error("Submission failed — drafts preserved", err);
+      // drafts stay in localStorage → user can retry
+    }
+  };
 
   return (
     <>
       <Card className="border-slate-200 shadow-sm">
-        {/* Header */}
         <CardHeader className="px-5 pt-5 pb-3 space-y-3">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
@@ -154,39 +211,27 @@ export function ScoringWizard({
                 {readOnly ? "Scoring Review" : "Score Criteria"}
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                {readOnly ? `${savedScores.length} criteria scored` : `${draftedCount} of ${groups.length} drafted`}
+                {readOnly
+                  ? `${savedScores.length} criteria scored`
+                  : `${draftedCount} of ${groups.length} drafted`}
               </p>
             </div>
-            {/* Totals */}
             <div className="flex items-center gap-3">
               <div className="text-right">
                 <p className="text-[11px] uppercase tracking-widest text-teal-600 font-semibold">Score</p>
-                <p className="text-2xl font-bold text-slate-800 tabular-nums leading-none mt-0.5">
-                  {readOnly
-                    ? savedScores.reduce((s, sc) => s + (Number((sc.score as Record<string, unknown>)?.score_value) || 0), 0)
-                    : totalScore
-                  }
-                  <span className="text-sm font-normal text-slate-400">/{maxScore}</span>
-                </p>
               </div>
-              <div className={`h-12 w-12 rounded-full flex items-center justify-center text-sm font-bold border-2 ${
-                pct >= 70 ? "border-emerald-400 text-emerald-600 bg-emerald-50"
-                : pct >= 40 ? "border-amber-400 text-amber-600 bg-amber-50"
-                : draftedCount === 0 ? "border-slate-200 text-slate-400 bg-slate-50"
-                : "border-red-400 text-red-600 bg-red-50"
-              }`}>{pct}%</div>
             </div>
           </div>
 
-          {/* Progress bar */}
           <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-500 ${pct >= 70 ? "bg-emerald-500" : pct >= 40 ? "bg-amber-400" : "bg-red-400"}`}
+              className={`h-full rounded-full transition-all duration-500 ${
+                pct >= 70 ? "bg-emerald-500" : pct >= 40 ? "bg-amber-400" : "bg-red-400"
+              }`}
               style={{ width: `${pct}%` }}
             />
           </div>
 
-          {/* Step dots */}
           <div className="flex items-center gap-1.5 flex-wrap">
             {filtered.map((g, i) => {
               const isDrafted = readOnly ? !!getSavedForGroup(g) : !!drafts[g.criteria];
@@ -205,28 +250,19 @@ export function ScoringWizard({
               );
             })}
           </div>
-
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-            <Input
-              placeholder="Search criteria..."
-              value={query}
-              onChange={(e) => { setQuery(e.target.value); setStep(0); }}
-              className="pl-8 h-8 text-xs bg-slate-50 border-slate-200"
-            />
-          </div>
         </CardHeader>
 
         <CardContent className="px-5 pb-5 space-y-4">
-          {/* Current criteria */}
           <div className="space-y-1">
             <div className="flex items-center justify-between">
               <Badge variant="outline" className="text-xs text-slate-500 border-slate-200">
                 {clampedStep + 1} / {filtered.length}
               </Badge>
               {currentDraft && !readOnly && (
-                <Badge className="bg-teal-50 text-teal-700 border-teal-200 text-xs gap-1" variant="outline">
+                <Badge
+                  className="bg-teal-50 text-teal-700 border-teal-200 text-xs gap-1"
+                  variant="outline"
+                >
                   <CheckCircle2 className="h-3 w-3" /> Drafted
                 </Badge>
               )}
@@ -237,7 +273,6 @@ export function ScoringWizard({
 
           <Separator className="bg-slate-100" />
 
-          {/* Options */}
           <div className="space-y-2">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-teal-600">
               {readOnly ? "Selected Option" : "Select one option"}
@@ -246,7 +281,6 @@ export function ScoringWizard({
               .sort((a, b) => Number(b.scores) - Number(a.scores))
               .map((opt) => {
                 const val = Number(opt.scores);
-                // Active state: draft (scoring mode) or saved (read-only)
                 const isSelected = readOnly
                   ? !!savedByToolId.get(opt.id)
                   : currentDraft?.tool_id === opt.id;
@@ -272,7 +306,9 @@ export function ScoringWizard({
                         }`}>
                           {isSelected && <div className="h-2 w-2 rounded-full bg-teal-500" />}
                         </div>
-                        <span className="text-sm text-slate-700 leading-snug">{opt.scoring_mechanism}</span>
+                        <span className="text-sm text-slate-700 leading-snug">
+                          {opt.scoring_mechanism}
+                        </span>
                       </div>
                       <ScoreBadge value={val} />
                     </div>
@@ -281,7 +317,6 @@ export function ScoringWizard({
               })}
           </div>
 
-          {/* Comment */}
           <div className="space-y-1.5">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-teal-600">
               Notes <span className="text-slate-400 normal-case font-normal tracking-normal">(optional)</span>
@@ -289,9 +324,13 @@ export function ScoringWizard({
             {readOnly ? (
               (() => {
                 const saved = getSavedForGroup(current);
-                return saved?.comment
-                  ? <p className="text-sm text-slate-600 italic bg-slate-50 border border-slate-200 rounded-md px-3 py-2">"{saved.comment}"</p>
-                  : <p className="text-xs text-slate-400">No notes added.</p>;
+                return saved?.comment ? (
+                  <p className="text-sm text-slate-600 italic bg-slate-50 border border-slate-200 rounded-md px-3 py-2">
+                    "{saved.comment}"
+                  </p>
+                ) : (
+                  <p className="text-xs text-slate-400">No notes added.</p>
+                );
               })()
             ) : (
               <Textarea
@@ -306,7 +345,6 @@ export function ScoringWizard({
 
           <Separator className="bg-slate-100" />
 
-          {/* Navigation */}
           <div className="flex items-center justify-between gap-2">
             <Button
               variant="outline" size="sm"
@@ -325,10 +363,11 @@ export function ScoringWizard({
                   onClick={() => setConfirmOpen(true)}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting
-                    ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />Submitting...</>
-                    : <><Send className="h-3.5 w-3.5" />Submit All</>
-                  }
+                  {isSubmitting ? (
+                    <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Submitting...</>
+                  ) : (
+                    <><Send className="h-3.5 w-3.5" /> Submit All</>
+                  )}
                 </Button>
               ) : !readOnly && allScored ? (
                 <Button
@@ -352,8 +391,7 @@ export function ScoringWizard({
               )}
             </div>
           </div>
-
-          {/* Draft summary */}
+{/* 
           {!readOnly && draftedCount > 0 && (
             <>
               <Separator className="bg-slate-100" />
@@ -365,36 +403,45 @@ export function ScoringWizard({
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-bold text-white tabular-nums">
-                    {totalScore}<span className="text-xs font-normal text-slate-400">/{maxScore}</span>
+                    {totalScore}
+                    <span className="text-xs font-normal text-slate-400">/{maxScore}</span>
                   </span>
-                  <Badge className={`font-bold text-xs border-0 ${pct >= 70 ? "bg-emerald-500" : pct >= 40 ? "bg-amber-500" : "bg-red-500"} text-white`}>
+                  <Badge
+                    className={`font-bold text-xs border-0 ${
+                      pct >= 70 ? "bg-emerald-500" : pct >= 40 ? "bg-amber-500" : "bg-red-500"
+                    } text-white`}
+                  >
                     {pct}%
                   </Badge>
                 </div>
               </div>
             </>
-          )}
+          )} */}
         </CardContent>
       </Card>
 
-      {/* Confirm submit */}
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent className="max-w-sm">
           <AlertDialogHeader>
             <AlertDialogTitle>Submit all scores?</AlertDialogTitle>
             <AlertDialogDescription className="space-y-2 text-sm">
-              <span className="block">You are about to submit <strong>{draftedCount} scores</strong> for this intervention.</span>
+              <span className="block">
+                You are about to submit <strong>{draftedCount} scores</strong> for this intervention.
+              </span>
               <span className="block bg-slate-50 border rounded-md px-3 py-2 text-slate-700">
                 Total: <strong>{totalScore}/{maxScore}</strong> · <strong>{pct}%</strong>
               </span>
-              <span className="block text-slate-400 text-xs">Scores cannot be changed after submission.</span>
+              <span className="block text-slate-400 text-xs">
+                Scores cannot be changed after submission.
+              </span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Review Again</AlertDialogCancel>
             <AlertDialogAction
               className="bg-teal-600 hover:bg-teal-700 text-white"
-              onClick={async () => { setConfirmOpen(false); await onSubmitAll(); }}
+              onClick={handleConfirmSubmit}
+              disabled={isSubmitting}
             >
               Yes, Submit All
             </AlertDialogAction>

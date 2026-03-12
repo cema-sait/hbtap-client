@@ -203,19 +203,14 @@ export default function ScoringReportPage() {
               refreshing && "opacity-60 pointer-events-none"
             )}
           >
-            {/* Stat cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               <StatCard
                 label="Total Interventions"
                 value={report.total_interventions}
                 icon={<BarChart3 className="h-4 w-4" />}
               />
-              <StatCard
-                label="Fully Scored"
-                value={report.fully_scored}
-                icon={<CheckCircle2 className="h-4 w-4" />}
-                color="#059669"
-              />
+
               <StatCard
                 label="Not Scored"
                 value={report.not_scored}

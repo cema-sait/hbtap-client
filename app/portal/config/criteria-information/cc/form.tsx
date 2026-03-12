@@ -6,6 +6,8 @@ import { InterventionSystemCategory } from "@/types/new/client";
 import { searchInterventions } from "@/app/api/new/search";
 import { getInterventionCategories } from "@/app/api/new/client";
 import { createCriteriaInfo, updateCriteriaInfo } from "@/app/api/new/criteria-info";
+import { sanitizeHtml } from "./clean";
+
 
 type BODType = "DALY" | "QALY" | "PREVALENCE" | "INCIDENCE";
 type SubmitState = "idle" | "submitting" | "success" | "error";
@@ -85,19 +87,35 @@ function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
     onChange(ref.current?.innerHTML ?? "");
   };
 
+  /**
+   * On paste: prefer plain text when pasting from Word/external sources,
+   * but if HTML is available, sanitize it first to strip MSO junk.
+   * Preserves bold, italic, underline, lists, links.
+   */
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const text = e.clipboardData.getData("text/html") || e.clipboardData.getData("text/plain");
-    document.execCommand("insertHTML", false, text);
+
+    const html = e.clipboardData.getData("text/html");
+    const plain = e.clipboardData.getData("text/plain");
+
+    if (html) {
+      // Sanitize HTML paste — removes Word XML, scripts, event handlers, etc.
+      const clean = sanitizeHtml(html);
+      document.execCommand("insertHTML", false, clean);
+    } else if (plain) {
+      // Plain text paste — insert as-is (execCommand escapes it safely)
+      document.execCommand("insertText", false, plain);
+    }
   };
 
   return (
     <div style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", background: "#fff" }}>
+      {/* Toolbar */}
       <div style={{ display: "flex", gap: 2, padding: "6px 8px", borderBottom: "1px solid #e5e7eb", background: "#f9fafb", flexWrap: "wrap" }}>
         {[
-          { cmd: "bold", icon: "B", style: { fontWeight: 700 } },
-          { cmd: "italic", icon: "I", style: { fontStyle: "italic" } },
-          { cmd: "underline", icon: "U", style: { textDecoration: "underline" } },
+          { cmd: "bold",      icon: "B", style: { fontWeight: 700 } },
+          { cmd: "italic",    icon: "I", style: { fontStyle: "italic" as const } },
+          { cmd: "underline", icon: "U", style: { textDecoration: "underline" as const } },
         ].map(({ cmd, icon, style }) => (
           <button key={cmd} onMouseDown={(e) => { e.preventDefault(); exec(cmd); }}
             style={{ ...style, padding: "2px 8px", border: "1px solid #d1d5db", borderRadius: 4, background: "#fff", cursor: "pointer", fontSize: 12, color: "#374151" }}>
@@ -117,11 +135,13 @@ function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
         <button onMouseDown={(e) => {
           e.preventDefault();
           const url = prompt("Enter URL");
-          if (url) exec("createLink", url);
+          if (url && /^https?:\/\//i.test(url)) exec("createLink", url);
         }} style={{ padding: "2px 8px", border: "1px solid #d1d5db", borderRadius: 4, background: "#fff", cursor: "pointer", fontSize: 12, color: "#374151" }}>
           Link
         </button>
       </div>
+
+      {/* Editable area */}
       <div
         ref={ref}
         contentEditable
@@ -135,6 +155,7 @@ function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
     </div>
   );
 }
+
 
 interface InterventionSearchInputProps {
   value: InterventionSearchResult | null;
@@ -227,7 +248,6 @@ function SectionTitle({ label, description, required, badge }: { label: string; 
 
 function SubmitBanner({ state, onDismiss }: { state: SubmitState; onDismiss?: () => void }) {
   if (state === "idle" || state === "submitting") return null;
-
   const isSuccess = state === "success";
   return (
     <div style={{
@@ -252,6 +272,26 @@ function SubmitBanner({ state, onDismiss }: { state: SubmitState; onDismiss?: ()
   );
 }
 
+// ── HTML field keys that need sanitization before save ────────────────────────
+const HTML_FIELD_KEYS = new Set<keyof FormState>([
+  "brief_info", "clinical_effectiveness", "burden_of_disease", "population",
+  "equity", "cost_effectiveness", "budget_impact_affordability",
+  "feasibility_of_implementation", "catastrophic_health_expenditure",
+  "access_to_healthcare", "congruence_with_health_priorities", "additional_info",
+]);
+
+
+function sanitizeFormPayload(form: FormState): FormState {
+  const result = { ...form };
+  for (const key of HTML_FIELD_KEYS) {
+    const raw = form[key];
+    if (typeof raw === "string" && raw.trim()) {
+      (result as Record<string, unknown>)[key] = sanitizeHtml(raw);
+    }
+  }
+  return result;
+}
+
 export interface CriteriaFormProps {
   initial?: CriteriaInformation | null;
   onSuccess: () => void;
@@ -260,12 +300,10 @@ export interface CriteriaFormProps {
 
 export function CriteriaForm({ initial, onSuccess, onCancel }: CriteriaFormProps) {
   const isEdit = !!initial;
+
   const [form, setForm] = useState<FormState>(() => {
     if (!initial) return EMPTY_FORM;
-    return {
-      ...initial,
-      bod_type: (initial.bod_type as BODType) ?? null,
-    };
+    return { ...initial, bod_type: (initial.bod_type as BODType) ?? null };
   });
   const [selectedIntervention, setSelectedIntervention] = useState<InterventionSearchResult | null>(null);
   const [categories, setCategories] = useState<InterventionSystemCategory[]>([]);
@@ -274,7 +312,6 @@ export function CriteriaForm({ initial, onSuccess, onCancel }: CriteriaFormProps
   useEffect(() => {
     if (!form.intervention) { setCategories([]); return; }
     getInterventionCategories(form.intervention).then((res: any) => {
-      // API returns paginated { count, results: [...] } or raw array
       const arr = Array.isArray(res) ? res : (res?.results ?? []);
       setCategories(arr);
     });
@@ -293,9 +330,12 @@ export function CriteriaForm({ initial, onSuccess, onCancel }: CriteriaFormProps
     if (!form.intervention) return;
     setSubmitState("submitting");
 
+    // Sanitize all HTML fields before sending to API
+    const sanitized = sanitizeFormPayload(form);
+
     const payload: CriteriaInformationPayload = {
-      ...form,
-      bod_type: form.bod_type ?? null,
+      ...sanitized,
+      bod_type: sanitized.bod_type ?? null,
     };
 
     const res = isEdit
@@ -335,18 +375,18 @@ export function CriteriaForm({ initial, onSuccess, onCancel }: CriteriaFormProps
             </div>
           )}
           {!isEdit && (
-            <div style={{ fontSize: 11, color: "#6b7280", marginTop: 3 }}>Complete the HTA criteria fields below</div>
+            <div style={{ fontSize: 11, color: "#6b7280", marginTop: 3 }}>
+              Complete the HTA criteria fields below
+            </div>
           )}
         </div>
-        {/* X close button */}
         <button
           onClick={onCancel}
           aria-label="Close"
           style={{
             width: 32, height: 32, borderRadius: "50%", border: "1px solid #e5e7eb",
             background: "#fff", cursor: "pointer", display: "flex", alignItems: "center",
-            justifyContent: "center", fontSize: 18, color: "#6b7280", lineHeight: 1,
-            flexShrink: 0,
+            justifyContent: "center", fontSize: 18, color: "#6b7280", lineHeight: 1, flexShrink: 0,
           }}
           onMouseEnter={(e) => { e.currentTarget.style.background = "#fef2f2"; e.currentTarget.style.color = "#b91c1c"; e.currentTarget.style.borderColor = "#fca5a5"; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#6b7280"; e.currentTarget.style.borderColor = "#e5e7eb"; }}
@@ -373,7 +413,7 @@ export function CriteriaForm({ initial, onSuccess, onCancel }: CriteriaFormProps
           )}
         </section>
 
-        {/* System Category — read-only display */}
+        {/* System Category — read-only */}
         <section>
           <SectionTitle label="System Category" />
           <div style={{ padding: "9px 12px", border: "1px solid #e5e7eb", borderRadius: 6, background: "#f9fafb", fontSize: 13 }}>
@@ -384,7 +424,7 @@ export function CriteriaForm({ initial, onSuccess, onCancel }: CriteriaFormProps
           </div>
         </section>
 
-        
+        {/* Criteria fields */}
         {CRITERIA_FIELDS.map(({ key, label, description }) => (
           <section key={key}>
             <SectionTitle
@@ -397,7 +437,6 @@ export function CriteriaForm({ initial, onSuccess, onCancel }: CriteriaFormProps
                 : undefined
               }
             />
-            {/* BOD type selector — rendered inside Burden of Disease section */}
             {key === "burden_of_disease" && (
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
                 {BOD_OPTIONS.map(({ value, label: optLabel }) => {
@@ -427,7 +466,10 @@ export function CriteriaForm({ initial, onSuccess, onCancel }: CriteriaFormProps
           </section>
         ))}
 
-        <SubmitBanner state={submitState} onDismiss={submitState === "error" ? () => setSubmitState("idle") : undefined} />
+        <SubmitBanner
+          state={submitState}
+          onDismiss={submitState === "error" ? () => setSubmitState("idle") : undefined}
+        />
 
         {/* Actions */}
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", paddingTop: 8, borderTop: "1px solid #f3f4f6" }}>

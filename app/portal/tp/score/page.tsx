@@ -152,7 +152,7 @@ export default function SelectionListPage() {
             size="sm"
             className="h-7 text-xs gap-1 whitespace-nowrap"
             variant={scored ? "outline" : "default"}
-            onClick={() => router.push(`/portal/proposal-selection/score/${row.id}`)}
+            onClick={() => router.push(`/portal/tp/score/${row.id}`)}
           >
             {scored
               ? <><Eye className="h-3 w-3" /> View</>

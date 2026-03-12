@@ -381,7 +381,7 @@ export default function BrowseByCategoryPage() {
                             variant={scored ? "outline" : "default"}
                             className="h-7 text-xs gap-1"
                             style={!scored ? { background: BRAND, borderColor: BRAND, color: "#fff" } : undefined}
-                            onClick={() => router.push(`/portal/proposal-selection/score/${proposal.id}`)}
+                            onClick={() => router.push(`/portal/tp/score/${proposal.id}`)}
                           >
                             {scored
                               ? <><Eye className="h-3.5 w-3.5" /> View</>
