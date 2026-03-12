@@ -29,7 +29,8 @@ import {
   Bell,
   Layers,
   SlidersHorizontal,
-  ClipboardCheck
+  ClipboardCheck,
+  BookText
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -88,8 +89,6 @@ const Aside = ({ isOpen, onToggle, user }: AsideProps) => {
     );
   };
 
-  // ── Shared blocks reused across roles ──────────────────────────────────────
-
   const sharedCalendarEvents: NavItem = {
     title: "Calendar & Events",
     icon: <Calendar className="h-5 w-5" />,
@@ -119,6 +118,7 @@ const Aside = ({ isOpen, onToggle, user }: AsideProps) => {
   };
 
   const userSwgNavItems: NavItem[] = [
+    sharedAll,
     {
       title: "Proposal Selection",
       icon: <ClipboardCheck className="h-5 w-5" />,
@@ -127,7 +127,7 @@ const Aside = ({ isOpen, onToggle, user }: AsideProps) => {
         { title: "Score Interventions",       href: "/portal/proposal-selection/score",    icon: <SlidersHorizontal className="h-4 w-4" /> },
       ],
     },
-    sharedAll,
+
     sharedCalendarEvents,
     sharedTaskManagement,
 
@@ -136,14 +136,19 @@ const Aside = ({ isOpen, onToggle, user }: AsideProps) => {
 
   const adminNavItems: NavItem[] = [
     { title: "Dashboard", href: "/portal", icon: <Home className="h-5 w-5" /> },
+    sharedAll,
     {
-      title: "Tools Configuration",
+      title: "Tool Configuration",
       icon: <Settings className="h-5 w-5" />,
       children: [
         { title: "Criteria Selection", href: "/portal/config/selection-tool",  icon: <SlidersHorizontal className="h-4 w-4" /> },
         { title: "System Categories",  href: "/portal/config/system-category", icon: <Layers className="h-4 w-4" /> },
+        { title: "Criteria Information",  href: "/portal/config/criteria-information", icon: <BookText className="h-4 w-4" /> }
       ],
     },
+    
+
+    
     {
       title: "Proposal Selection",
       icon: <ClipboardCheck className="h-5 w-5" />,
@@ -154,7 +159,7 @@ const Aside = ({ isOpen, onToggle, user }: AsideProps) => {
         { title: "Scoring Reports",           href: "/portal/proposal-selection/reports",  icon: <BarChart3 className="h-4 w-4" /> },
       ],
     },
-    sharedAll,
+
     // {
     //   title: "Interventions",
     //   icon: <BarChart3 className="h-5 w-5" />,

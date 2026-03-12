@@ -54,6 +54,11 @@ export interface InterventionSystemCategory {
   id: UUID;
   intervention: UUID;
   system_category: UUID;
+    system_category_detail: {
+    id: UUID;
+    name: string;
+    description: string;
+  };
   created_at: ISODateString;
 }
 
