@@ -35,8 +35,8 @@ export const submitProposal = async (formData: FormData): Promise<ApiResponse> =
     submitData.append('interventionType', formData.interventionType);
     submitData.append('beneficiary', formData.beneficiary);
     submitData.append('justification', formData.justification);
-    submitData.append('expectedImpact', formData.expectedImpact);
-    submitData.append('additionalInfo', formData.additionalInfo || '');
+    submitData.append('expected_impact', formData.expectedImpact);
+    submitData.append('additional_info', formData.additionalInfo || '');
     submitData.append('signature', formData.signature);
     submitData.append('date', formData.date);
 
