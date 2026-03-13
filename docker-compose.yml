@@ -22,6 +22,8 @@ services:
 
       - "traefik.http.routers.bptap.rule=Host(`bptap.dev.cema.africa`)"
       - "traefik.http.routers.bptap.entrypoints=websecure"
+      
+      - "traefik.http.routers.bptap.tls=true"
       - "traefik.http.routers.bptap.tls.certresolver=letsencrypt"
 
       - "traefik.http.services.bptap.loadbalancer.server.port=3000"
