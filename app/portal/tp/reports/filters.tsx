@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, ArrowUpDown } from "lucide-react";
+import { Search, ArrowUpDown, Calendar, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -10,7 +10,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export type SortOrder = "score_desc" | "score_asc" | "az" | "za";
+export type SortOrder = "score_desc" | "score_asc" | "az" | "za" | "date_desc" | "date_asc";
+
+export interface DateRange {
+  from: string;
+  to: string;
+}
 
 export interface ReportFiltersProps {
   search: string;
@@ -22,6 +27,8 @@ export interface ReportFiltersProps {
   categories: string[];
   shownCount: number;
   totalCount: number;
+  dateRange: DateRange;
+  onDateRangeChange: (value: DateRange) => void;
 }
 
 export function ReportFilters({
@@ -34,6 +41,8 @@ export function ReportFilters({
   categories,
   shownCount,
   totalCount,
+  dateRange,
+  onDateRangeChange,
 }: ReportFiltersProps) {
   return (
     <div className="flex items-center gap-3 flex-wrap">
@@ -52,7 +61,7 @@ export function ReportFilters({
       <div className="flex items-center gap-1.5">
         <ArrowUpDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
         <Select value={sortOrder} onValueChange={(v) => onSortOrderChange(v as SortOrder)}>
-          <SelectTrigger className="h-9 w-44 text-sm bg-white border-slate-200">
+          <SelectTrigger className="h-9 w-48 text-sm bg-white border-slate-200">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -60,8 +69,38 @@ export function ReportFilters({
             <SelectItem value="score_asc">Score: Low → High</SelectItem>
             <SelectItem value="az">Name: A → Z</SelectItem>
             <SelectItem value="za">Name: Z → A</SelectItem>
+            <SelectItem value="date_desc">Date: Newest First</SelectItem>
+            <SelectItem value="date_asc">Date: Oldest First</SelectItem>
           </SelectContent>
         </Select>
+      </div>
+
+      {/* Date range */}
+      <div className="flex items-center gap-1.5">
+        <Calendar className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+        <input
+          type="date"
+          value={dateRange.from}
+          onChange={(e) => onDateRangeChange({ ...dateRange, from: e.target.value })}
+          className="h-9 rounded-md border border-slate-200 bg-white px-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#27aae1]/40"
+        />
+        <span className="text-xs text-slate-400">to</span>
+        <input
+          type="date"
+          value={dateRange.to}
+          min={dateRange.from || undefined}
+          onChange={(e) => onDateRangeChange({ ...dateRange, to: e.target.value })}
+          className="h-9 rounded-md border border-slate-200 bg-white px-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#27aae1]/40"
+        />
+        {(dateRange.from || dateRange.to) && (
+          <button
+            onClick={() => onDateRangeChange({ from: "", to: "" })}
+            className="text-slate-400 hover:text-slate-600 transition-colors"
+            aria-label="Clear date range"
+          >
+            <XCircle className="h-3.5 w-3.5" />
+          </button>
+        )}
       </div>
 
       {/* Category */}
@@ -77,7 +116,11 @@ export function ReportFilters({
             <SelectItem value="__all__">All system categories</SelectItem>
             <SelectItem value="__none__">— No category assigned</SelectItem>
             {categories.map((cat) => (
-              <SelectItem key={cat} value={cat} className="whitespace-normal text-xs leading-snug py-2">
+              <SelectItem
+                key={cat}
+                value={cat}
+                className="whitespace-normal text-xs leading-snug py-2"
+              >
                 {cat}
               </SelectItem>
             ))}

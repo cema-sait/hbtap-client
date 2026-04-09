@@ -57,6 +57,11 @@ function triggerDownload(csv: string, filename: string) {
   URL.revokeObjectURL(url);
 }
 
+function formatDate(value: string | null): string {
+  if (!value) return "";
+  return new Date(value).toLocaleString();
+}
+
 /**
  * Export all data — one row per reviewer per intervention.
  * Columns: Ref, Category, Reviewer, Email, Scored, <criteria...>
@@ -76,7 +81,8 @@ export function exportAllDataCSV(
     "Reviewer Name",
     "Reviewer Email",
     "Scored",
-    ...allCriteria,
+    "Scored At",
+    ...allCriteria.flatMap((c) => [`${c} (Score)`, `${c} (Notes)`]),
   ];
 
   const rows: string[] = [];
@@ -85,17 +91,34 @@ export function exportAllDataCSV(
     const category = iv.system_categories.join(" | ") || "Uncategorized";
 
     for (const reviewer of iv.reviewers) {
-      const criteriaMap = Object.fromEntries(
-        reviewer.criteria_scores.map((cs) => [cs.criteria_name, cs.score_value])
-      );
+      // const criteriaMap = Object.fromEntries(
+      //   reviewer.criteria_scores.map((cs) => [cs.criteria_name, cs.score_value])
+      // );
 
+      const criteriaMap = Object.fromEntries(
+          reviewer.criteria_scores.map((cs) => [
+            cs.criteria_name,
+            {
+              score: cs.score_value,
+              notes: cs.notes ?? "",
+            },
+          ])
+        );
       rows.push([
         csvCell(iv.reference_number),
         csvCell(category),
         csvCell(reviewer.full_name),
         csvCell(reviewer.email),
         csvCell(reviewer.scored ? "Yes" : "No"),
-        ...allCriteria.map((name) => csvCell(criteriaMap[name] ?? 0)),
+        csvCell(formatDate(iv.scored_at)),
+        ...allCriteria.flatMap((name) => {
+        const entry = criteriaMap[name];
+
+        return [
+          csvCell(entry?.score ?? 0),
+          csvCell(entry?.notes ?? ""),
+        ];
+      }),
       ].join(","));
     }
   }

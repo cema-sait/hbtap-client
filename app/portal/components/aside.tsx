@@ -30,7 +30,9 @@ import {
   Layers,
   SlidersHorizontal,
   ClipboardCheck,
-  BookText
+  BookText,
+  ClipboardList,
+  ActivitySquare
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -110,14 +112,17 @@ const Aside = ({ isOpen, onToggle, user }: AsideProps) => {
 
   const sharedAll:NavItem = {
 
+
       title: "Interventions",
       icon: <BarChart3 className="h-5 w-5" />,
       children: [
         { title: "All Proposals",             href: "/portal/interventions",                    icon: <LayoutDashboard className="h-4 w-4" /> },
+        { title: "Status Update",       href: "/portal/interventions/status",    icon: <SlidersHorizontal className="h-4 w-4" /> },
       ]
   };
 
   const userSwgNavItems: NavItem[] = [
+    { title: "Dashboard", href: "/portal", icon: <Home className="h-5 w-5" /> },
     sharedAll,
     {
       title: "Topic Prioritization",
@@ -158,26 +163,21 @@ const Aside = ({ isOpen, onToggle, user }: AsideProps) => {
       children: [
 
         { title: "Interventions by Category", href: "/portal/tp/category", icon: <LayoutDashboard className="h-4 w-4" /> },
-        // { title: "Score Interventions",       href: "/portal/tp/score",    icon: <SlidersHorizontal className="h-4 w-4" /> },
+        { title: "Individual Weighted Reports",       href: "/portal/tp/weighting",    icon: <SlidersHorizontal className="h-4 w-4" /> },
         { title: "Scoring Reports",           href: "/portal/tp/reports",  icon: <BarChart3 className="h-4 w-4" /> },
       ],
     },
 
-    // {
-    //   title: "Interventions",
-    //   icon: <BarChart3 className="h-5 w-5" />,
-    //   children: [
-    //     { title: "Dashboard",             href: "/portal/interventions",                    icon: <LayoutDashboard className="h-4 w-4" /> },
-    //     // { title: "Submitted Proposals",   href: "/portal/interventions/all-proposals",      icon: <FileText className="h-4 w-4" /> },
-    //     // { title: "Assign Categories",     href: "/portal/interventions/categorization",     icon: <Target className="h-4 w-4" /> },
-    //     // { title: "Assign Reviewers",      href: "/portal/interventions/assignment",         icon: <Users className="h-4 w-4" /> },
-    //     // { title: "Assigned to Me",        href: "/portal/interventions/assigned-to-me",     icon: <UserCheck className="h-4 w-4" /> },
-    //     // { title: "Review Progress",       href: "/portal/interventions/review",             icon: <MessageSquare className="h-4 w-4" /> },
-    //     // { title: "Decision Rationale",    href: "/portal/interventions/decision-rationale", icon: <Gavel className="h-4 w-4" /> },
-    //     // { title: "Implementation Status", href: "/portal/interventions/implementation",     icon: <TrendingUp className="h-4 w-4" /> },
-    //     // { title: "Reports & Analytics",   href: "/portal/interventions/reports",            icon: <BarChart3 className="h-4 w-4" /> },
-    //   ],
-    // },
+  {
+  title: "Intervention Tracker",
+  icon: <ClipboardList className="h-5 w-5" />,
+  children: [
+    { title: "Review Status",   href: "/portal/tracker/review-status", icon: <ActivitySquare className="h-4 w-4" /> },
+    { title: "Decision Types",  href: "/portal/tracker/decision",      icon: <Gavel className="h-4 w-4" /> },
+  ],
+},
+
+
     {
       title: "Records",
       icon: <Archive className="h-5 w-5" />,

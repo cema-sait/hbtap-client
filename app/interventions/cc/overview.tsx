@@ -6,6 +6,7 @@ import { PublicProposal } from "@/types/new/public";
 import { FilterState } from "./filters";
 import { WithProposalsInjectedProps } from "../hoc";
 import { Pagination } from "./pagination";
+import PublicStatusPage from "../status/page";
 
 interface StructureProps extends WithProposalsInjectedProps {
   filters: FilterState;
@@ -20,7 +21,7 @@ export type TabId = "interventions" | "system-categorisation";
 
 const TABS: { id: TabId; label: string; upcoming?: boolean }[] = [
   { id: "interventions", label: "Interventions submitted" },
-  { id: "system-categorisation", label: "Status Update", upcoming: true },
+  { id: "system-categorisation", label: "Status Update" },
 ];
 
 
@@ -341,7 +342,7 @@ export function Structure(props: StructureProps) {
 
       {activeTab === "interventions" && <InterventionsTable {...props} />}
       {activeTab === "system-categorisation" && (
-        <UpcomingSection label="System Categorisation" />
+        <PublicStatusPage  />
       )}
     </div>
   );

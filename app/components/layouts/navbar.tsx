@@ -84,7 +84,7 @@ async function fetchSearchPreview(q: string): Promise<SearchResult[]> {
             title: p.intervention_name ?? p.reference_number,
             section: 'Intervention',
             href: `/interventions/${p.reference_number}`,
-            meta: p.intervention_type ?? undefined,
+            meta: toPlainText(p.intervention_type) || undefined, 
           })
         )
     }
@@ -126,57 +126,13 @@ function ActiveIndicator() {
   )
 }
 
-// ── Search box ────────────────────────────────────────────────────────────────
 
-// function SearchBox({ onNavigate, className }: { onNavigate?: () => void; className?: string }) {
-//   const router = useRouter()
-//   const [query, setQuery] = useState('')
-//   const [results, setResults] = useState<SearchResult[]>([])
-//   const [loading, setLoading] = useState(false)
-//   const [open, setOpen] = useState(false)
-//   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-//   const containerRef = useRef<HTMLDivElement>(null)
-
-//   useEffect(() => {
-//     if (debounceRef.current) clearTimeout(debounceRef.current)
-//     if (!query.trim()) {
-//       setResults([])
-//       setOpen(false)
-//       return
-//     }
-
-//     const qLower = query.toLowerCase()
-//     const immediateStatic = STATIC_INDEX
-//       .filter((s) =>
-//         s.title.toLowerCase().includes(qLower) ||
-//         s.excerpt.toLowerCase().includes(qLower)
-//       )
-//       .slice(0, 4)
-//       .map((s): SearchResult => ({
-//         id: `static-${s.href}`,
-//         title: s.title,
-//         section: s.section,
-//         href: s.href,
-//         excerpt: s.excerpt.slice(0, 80),
-//       }))
-
-//     if (immediateStatic.length > 0) {
-//       setResults(immediateStatic)
-//       setOpen(true)
-//     }
-
-//     setLoading(true)
-//     debounceRef.current = setTimeout(async () => {
-//       const res = await fetchSearchPreview(query)
-//       setResults(res)
-//       setOpen(true)
-//       setLoading(false)
-//     }, 300)
-
-//     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
-//   }, [query])
-
-
+function toPlainText(value: unknown): string {
+  if (value == null) return ''
+  const str = typeof value === 'object' ? JSON.stringify(value) : String(value)
+  // Strip HTML tags
+  return str.replace(/<[^>]*>/g, '').trim()
+}
 
 function SearchBox({ onNavigate, className }: { onNavigate?: () => void; className?: string }) {
   const router = useRouter()
@@ -184,6 +140,7 @@ function SearchBox({ onNavigate, className }: { onNavigate?: () => void; classNa
   const [results, setResults] = useState<SearchResult[]>([])
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const [error, setError] = useState<string | null>(null)
 
   // Load dynamic data once on mount — plain fetch, no auth
   useEffect(() => {
@@ -194,42 +151,47 @@ function SearchBox({ onNavigate, className }: { onNavigate?: () => void; classNa
     if (!query.trim()) {
       setResults([])
       setOpen(false)
+      setError(null)
       return
     }
 
-    const qLower = query.toLowerCase()
+    try {
+      const qLower = query.toLowerCase()
 
-    // Static — instant
-    const staticMatches: SearchResult[] = STATIC_INDEX
-      .filter((s) =>
-        s.title.toLowerCase().includes(qLower) ||
-        s.excerpt.toLowerCase().includes(qLower)
-      )
-      .slice(0, 5)
-      .map((s) => ({
-        id: `static-${s.href}`,
-        title: s.title,
-        section: s.section,
-        href: s.href,
-        excerpt: s.excerpt.slice(0, 90),
-      }))
+      const staticMatches: SearchResult[] = STATIC_INDEX
+        .filter((s) =>
+          s.title.toLowerCase().includes(qLower) ||
+          s.excerpt.toLowerCase().includes(qLower)
+        )
+        .slice(0, 5)
+        .map((s) => ({
+          id: `static-${s.href}`,
+          title: s.title,
+          section: s.section,
+          href: s.href,
+          excerpt: s.excerpt.slice(0, 90),
+        }))
 
-    // Dynamic — from in-memory cache (already loaded)
-    const dynamicMatches: SearchResult[] = searchDynamic(query)
-      .slice(0, 4)
-      .map((s) => ({
-        id: `dyn-${s.href}`,
-        title: s.title,
-        section: s.section,
-        href: s.href,
-        excerpt: s.excerpt,
-      }))
+      const dynamicMatches: SearchResult[] = searchDynamic(query)
+        .slice(0, 4)
+        .map((s) => ({
+          id: `dyn-${s.href}`,
+          title: s.title,
+          section: s.section,
+          href: s.href,
+          excerpt: toPlainText(s.excerpt),
+        }))
 
-    const merged = [...staticMatches, ...dynamicMatches].slice(0, 9)
-    setResults(merged)
-    setOpen(merged.length > 0)
+      const merged = [...staticMatches, ...dynamicMatches].slice(0, 9)
+      setResults(merged)
+      setError(null)
+      setOpen(merged.length > 0)
+    } catch {
+      setResults([])
+      setError('Something went wrong. Please try again.')
+      setOpen(true)
+    }
   }, [query])
-
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -294,15 +256,17 @@ function SearchBox({ onNavigate, className }: { onNavigate?: () => void; classNa
           >
             <div className="h-0.5 w-full bg-[#27aae1]" />
 
-            {results.length === 0 ? (
-              <p className="px-4 py-4 text-sm text-gray-400">
+           {error ? (
+              <p className="px-4 py-4 text-sm text-red-500">{error}</p>
+            ) : results.length === 0 ? (
+              <p className="px-4 py-4 text-sm text-gray-600">
                 No results for &ldquo;{query}&rdquo;
               </p>
             ) : (
               <>
                 {Object.entries(grouped).map(([section, items]) => (
                   <div key={section}>
-                    <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                    <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-gray-600">
                       {section}
                     </p>
                     <ul>
@@ -357,6 +321,7 @@ export default function Navbar() {
   const pathname = usePathname()
   const dropdownTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -402,7 +367,7 @@ export default function Navbar() {
               <Image src="/images/logo.png" alt="BPTAP" height={110} width={110} className="w-auto h-18 object-contain" priority />
             </Link>
 
-            {/* Desktop nav */}
+            {/* l nav */}
             <div className="hidden lg:flex items-stretch flex-1 pl-2">
               {links.map((link) => {
                 const hasDropdown = 'subLinks' in link && !!link.subLinks
@@ -418,7 +383,7 @@ export default function Navbar() {
                       onMouseLeave={handleMouseLeave}
                     >
                       <button className={cn(
-                        'relative flex items-center gap-1 px-3 text-base font-semibold tracking-wide transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#27aae1]',
+                        'relative flex items-center gap-1 px-3 text-base xl:text-lg 2xl:text-xl  font-semibold tracking-wide transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#27aae1]',
                         isActive ? 'text-[#27aae1]' : 'text-black hover:text-[#27aae1]'
                       )}>
                         {link.label}
@@ -462,7 +427,7 @@ export default function Navbar() {
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      'relative flex items-center px-3 text-lg  font-semibold tracking-wide transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#27aae1]',
+                      'relative flex items-center px-3 text-lg  2xl:text-2xl  font-semibold tracking-wide transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#27aae1]',
                       isActive ? 'text-[#27aae1]' : 'text-black hover:text-[#27aae1]'
                     )}
                   >
