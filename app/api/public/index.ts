@@ -28,7 +28,6 @@ const res = await fetch(`${API_URL}/v3/proposals/`);
     throw new Error("Failed to parse server response");
   }
 
-
   return data.results ?? [];
 }
 
