@@ -25,9 +25,11 @@ jobs:
             set -e
             git config --global --add safe.directory ${{ secrets.VPS_APP_DIR }}
             cd ${{ secrets.VPS_APP_DIR }}
-            git pull origin backup
+            git fetch origin
+            git reset --hard origin/backup
+            git clean -fd
             docker compose build web
             docker compose up -d --no-deps web
             docker compose logs web --tail 20
-
+            
             echo "Deployed successfully!"
