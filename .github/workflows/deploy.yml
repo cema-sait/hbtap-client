@@ -23,14 +23,11 @@ jobs:
           port: ${{ secrets.VPS_PORT || 22 }}
           script: |
             set -e
-
+            git config --global --add safe.directory ${{ secrets.VPS_APP_DIR }}
             cd ${{ secrets.VPS_APP_DIR }}
-
-            git fetch --tags origin
+            git pull origin backup
             docker compose build web
-
             docker compose up -d --no-deps web
-
             docker compose logs web --tail 20
 
             echo "Deployed successfully!"
