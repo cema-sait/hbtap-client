@@ -1,231 +1,206 @@
 'use client'
 
-import { Button } from "@/components/ui/button"
-import Image from "next/image"
-import Link from "next/link"
-import { motion, AnimatePresence } from "framer-motion"
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
-import { useState, useEffect } from "react"
+import Image from 'next/image'
+import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
 
 const heroImages = [
   {
-    src: "/images/launch.webp",
-    alt: "Health CS Duale inaugurates BPTAP",
-    title: "Health CS Duale inaugurates BPTAP"
+    src: '/images/launch.webp',
+    alt: 'Health CS Duale inaugurates BPTAP',
+    caption: 'Health CS Duale inaugurates BPTAP',
   },
   {
-    src: "/images/nice-training.jpg",
-    alt: "Advanced Health Technology Assessment training by NICE",
-    title: "Advanced HTA Training by NICE"
+    src: '/images/nice-training.jpg',
+    alt: 'Advanced Health Technology Assessment training by NICE',
+    caption: 'Advanced HTA Training by NICE',
   },
   {
-    src: "/images/hta-training.jpeg",
-    alt: "Health Technology Assessment training workshop for healthcare professionals",
-    title: "HTA Training"
-  }
+    src: '/images/hta-training.jpeg',
+    alt: 'Health Technology Assessment training workshop',
+    caption: 'HTA Training Workshop',
+  },
 ]
 
 export default function HeroSection() {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [current, setCurrent] = useState(0)
+  const [paused, setPaused] = useState(false)
+
+  const next = useCallback(() =>
+    setCurrent((i) => (i + 1) % heroImages.length), [])
+  const prev = useCallback(() =>
+    setCurrent((i) => (i - 1 + heroImages.length) % heroImages.length), [])
 
   useEffect(() => {
-    if (!isAutoPlaying) return
-
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => 
-        prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
-      )
-    }, 5000) // Change image every 5 seconds
-
-    return () => clearInterval(interval)
-  }, [isAutoPlaying])
-
-  const goToPrevious = () => {
-    setIsAutoPlaying(false)
-    setCurrentImageIndex((prevIndex) => 
-      prevIndex === 0 ? heroImages.length - 1 : prevIndex - 1
-    )
-  }
-
-  const goToNext = () => {
-    setIsAutoPlaying(false)
-    setCurrentImageIndex((prevIndex) => 
-      prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
-    )
-  }
-
-  const goToSlide = (index: number) => {
-    setIsAutoPlaying(false)
-    setCurrentImageIndex(index)
-  }
+    if (paused) return
+    const t = setInterval(next, 6000)
+    return () => clearInterval(t)
+  }, [paused, next])
 
   return (
-    <section className="relative pt-24 md:pt-32 pb-12 md:pb-20 bg-[#86cefa] overflow-hidden">
+    <section className="bg-white   mt-8">
 
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-b from-[#63C5DA]/90 to-transparent rounded-bl-full"></div>
-        
 
-        <div className="absolute bottom-0 left-0 w-1/2 h-1/2">
-          <svg className="w-full h-full opacity-90" viewBox="0 0 400 400" fill="none">
-            <circle cx="50" cy="350" r="100" fill="url(#gradient1)" />
-            <circle cx="150" cy="300" r="60" fill="url(#gradient2)" />
-            <circle cx="80" cy="250" r="40" fill="url(#gradient3)" />
-            <defs>
-              <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#27aae1" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#63C5DA" stopOpacity="0.1" />
-              </linearGradient>
-              <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#63C5DA" stopOpacity="0.4" />
-                <stop offset="100%" stopColor="#27aae1" stopOpacity="0.1" />
-              </linearGradient>
-              <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#27aae1" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#63C5DA" stopOpacity="0.2" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
+      <div className="container border-b-2  border-gray-900  mx-auto px-4 sm:px-6">
+        <div className="grid lg:grid-cols-2 gap-0 min-h-[540px]">
 
-      
-        <div className="absolute top-1/2 right-10 transform -translate-y-1/2 opacity-10">
-          <svg width="120" height="300" viewBox="0 0 120 300" fill="none">
-            {Array.from({ length: 15 }, (_, i) => (
-              <circle 
-                key={i}
-                cx={30 + (i % 3) * 30} 
-                cy={30 + Math.floor(i / 3) * 40} 
-                r="3" 
-                fill="#27aae1"
-                opacity={0.6 - (i * 0.03)}
-              />
-            ))}
-          </svg>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-          <motion.div 
-            className="w-full lg:w-1/2 text-center lg:text-left"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          >
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-              <span className="text-black block">Towards advancing</span> 
-              <span className="text-xl sm:text-2xl md:text-3xl lg:text-3xl font-bold text-white block mt-2 sm:ml-6">
-                Universal Health Coverage
-              </span> 
-              <span className="text-lg sm:text-xl md:text-2xl lg:text-2xl font-bold text-black block mt-2 sm:ml-32">
-                in Kenya
-              </span>
-            </h1>
-           
-            <motion.p 
-              className="text-gray-800 text-base sm:text-lg md:text-xl mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed"
-              initial={{ opacity: 0, y: 20 }}
+          <div className="flex flex-col justify-center py-14 lg:pr-16 lg:border-r border-gray-200">
+            <motion.h1
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.08 }}
+              className="text-3xl sm:text-4xl lg:text-[2.6rem] font-extrabold text-gray-900 tracking-tight leading-[1.15] mb-6"
             >
-              The Benefits Package and Tariffs Advisory Panel is committed to promoting transparent, evidence-informed approaches to healthcare decision-making in Kenya.
+              Towards advancing{' '}
+              <span className="text-[#27aae1]">Universal Health Coverage</span>{' '}
+              in Kenya
+            </motion.h1>
+
+            {/* Body */}
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.16 }}
+              className="text-xl  leading-relaxed max-w-lg mb-10"
+            >
+              The Benefits Package and Tariffs Advisory Panel is committed to
+              promoting transparent, evidence-informed approaches to healthcare
+              decision-making in Kenya.
             </motion.p>
 
-            <motion.div 
-              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
-              initial={{ opacity: 0, y: 20 }}
+            {/* Actions */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
+              transition={{ duration: 0.4, delay: 0.24 }}
+              className="flex flex-col sm:flex-row gap-3"
             >
-              <Link href="/about-us">
-                <Button className="bg-[#27aae1] hover:bg-black text-white px-8 py-3 rounded-lg text-base font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                  Learn More About BPTAP
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
+              <Link
+                href="/about-us"
+                className="inline-flex items-center justify-center gap-2 bg-[#27aae1] hover:bg-[#1a8fc4] active:bg-[#1279a8] text-white text-sm font-bold px-6 py-3 transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#27aae1] focus-visible:ring-offset-2"
+              >
+                Learn More About BPTAP
+                <ArrowRight className="w-4 h-4" />
               </Link>
-              
-              <Link href="/interventions-form">
-                <Button variant="outline" className="border-2 border-white text-white hover:bg-[#63C5DA] hover:text-white px-8 py-3 rounded-lg text-base font-medium transition-all duration-300 bg-transparent">
-                  Submit Proposal
-                </Button>
+
+              <Link
+                href="/interventions-form"
+                className="inline-flex items-center justify-center gap-2 border-2 border-gray-900 text-gray-900 text-sm font-bold px-6 py-3 hover:bg-gray-900 hover:text-white transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
+              >
+                Submit a Proposal
               </Link>
             </motion.div>
-          </motion.div>
-          
-          <motion.div 
-            className="w-full lg:w-1/2"
-            initial={{ opacity: 0, scale: 0.95, x: 50 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
+
+            {/* Trust markers */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.4 }}
+              className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-10 pt-8 border-t border-gray-200"
+            >
+              {[
+                'Ministry of Health Kenya',
+                'BPTAP',
+                'Evidence-based',
+              ].map((tag) => (
+                <span key={tag} className="flex items-center gap-2 text-xs text-gray-500 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#27aae1] flex-shrink-0" />
+                  {tag}
+                </span>
+              ))}
+            </motion.div>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="relative lg:pl-10 py-10 flex items-center"
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
           >
-            <div className="relative h-64 md:h-96 lg:h-[500px] w-full rounded-2xl overflow-hidden shadow-2xl group">
-        
-              <div className="absolute inset-0 bg-gradient-to-br from-[#27aae1]/10 via-transparent to-[#63C5DA]/20 z-10"></div>
-            
-              <div className="absolute top-0 left-0 w-20 h-20 border-t-4 border-l-4 border-[#63C5DA] rounded-tl-2xl z-20"></div>
-              <div className="absolute bottom-0 right-0 w-20 h-20 border-b-4 border-r-4 border-[#27aae1] rounded-br-2xl z-20"></div>
-              
-              {/* Image Slider */}
+            {/* Image frame */}
+            <div className="relative w-full aspect-[4/3] bg-gray-100 overflow-hidden border border-gray-200">
+
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={currentImageIndex}
+                  key={current}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="absolute inset-0 z-0"
+                  transition={{ duration: 0.45 }}
+                  className="absolute inset-0"
                 >
                   <Image
-                    src={heroImages[currentImageIndex].src}
-                    alt={heroImages[currentImageIndex].alt}
+                    src={heroImages[current].src}
+                    alt={heroImages[current].alt}
                     fill
-                    style={{ objectFit: "cover" }}
-                    priority={currentImageIndex === 0}
-                    className="transition-transform duration-700 hover:scale-105"
+                    className="object-cover"
+                    priority={current === 0}
                   />
                 </motion.div>
               </AnimatePresence>
 
-              {/* Navigation Arrows */}
+              {/* Caption bar */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gray-900/80 backdrop-blur-sm px-4 py-2.5 z-10">
+                <p className="text-white text-xs font-medium">
+                  {heroImages[current].caption}
+                </p>
+              </div>
+
+              {/* Prev / Next */}
               <button
-                onClick={goToPrevious}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white text-[#27aae1] p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                onClick={() => { setPaused(true); prev() }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 bg-white/90 hover:bg-white flex items-center justify-center text-gray-800 shadow transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#27aae1]"
                 aria-label="Previous image"
               >
-                <ChevronLeft className="w-6 h-6" />
+                <ChevronLeft className="w-4 h-4" />
               </button>
-              
               <button
-                onClick={goToNext}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white text-[#27aae1] p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                onClick={() => { setPaused(true); next() }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 bg-white/90 hover:bg-white flex items-center justify-center text-gray-800 shadow transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#27aae1]"
                 aria-label="Next image"
               >
-                <ChevronRight className="w-6 h-6" />
+                <ChevronRight className="w-4 h-4" />
               </button>
+            </div>
 
-              {/* Dot Indicators */}
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-80 flex gap-2">
-                {heroImages.map((_, index) => (
+            {/* Slide indicators + counter */}
+            <div className="absolute bottom-10 left-10 right-10 lg:left-auto lg:right-10 flex items-center justify-between lg:justify-end gap-4">
+              <div className="flex gap-1.5">
+                {heroImages.map((_, i) => (
                   <button
-                    key={index}
-                    onClick={() => goToSlide(index)}
-                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                      index === currentImageIndex 
-                        ? 'bg-white w-8' 
-                        : 'bg-white/50 hover:bg-white/75'
+                    key={i}
+                    onClick={() => { setPaused(true); setCurrent(i) }}
+                    className={`h-1 rounded-full transition-all duration-300 focus:outline-none ${
+                      i === current
+                        ? 'w-8 bg-[#27aae1]'
+                        : 'w-4 bg-gray-300 hover:bg-gray-400'
                     }`}
-                    aria-label={`Go to slide ${index + 1}`}
+                    aria-label={`Go to slide ${i + 1}`}
                   />
                 ))}
               </div>
-
-              {/* Image Title Overlay */}
-              <div className="absolute bottom-0 left-4 right-4 z-50 bg-black/50 backdrop-blur-sm text-white px-4 py-2 rounded-lg">
-                <p className="text-sm font-medium">{heroImages[currentImageIndex].title}</p>
-              </div>
+              <span className="text-xs font-bold text-gray-400 tabular-nums">
+                {String(current + 1).padStart(2, '0')} /{' '}
+                {String(heroImages.length).padStart(2, '0')}
+              </span>
             </div>
+
+            {/* Progress bar */}
+            {!paused && (
+              <div className="absolute top-10 left-10 right-10 lg:left-auto h-0.5 bg-gray-200 overflow-hidden">
+                <motion.div
+                  key={current}
+                  className="h-full bg-[#27aae1] origin-left"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ duration: 6, ease: 'linear' }}
+                />
+              </div>
+            )}
           </motion.div>
         </div>
       </div>

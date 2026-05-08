@@ -1,208 +1,164 @@
 'use client'
 
-import { motion } from "framer-motion"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { motion } from 'framer-motion'
+import Link from 'next/link'
+import { ArrowRight, ShieldCheck, Banknote, Users } from 'lucide-react'
+
+const pillars = [
+  {
+    icon: ShieldCheck,
+    color: '#27aae1',
+    label: '01',
+    title: 'Evidence-Based Decision Making',
+    body: 'We ensure healthcare decisions are based on solid scientific evidence, maximizing benefits while minimizing risks and costs.',
+  },
+  {
+    icon: Banknote,
+    color: '#138788',
+    label: '02',
+    title: 'Sustainable Healthcare Financing',
+    body: 'We develop fair pricing strategies that balance quality healthcare delivery with financial sustainability for the SHA program.',
+  },
+  {
+    icon: Users,
+    color: '#27aae1',
+    label: '03',
+    title: 'Universal Health Coverage',
+    body: 'Our work directly contributes to advancing Universal Health Coverage by ensuring appropriate healthcare technologies are accessible to all.',
+  },
+]
+
+const containerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+}
 
 export default function AboutSection() {
-  const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.6 }
-    }
-  }
-
-  const staggerChildren = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
-  }
-
   return (
-    <section className="py-12 ">
-      <div className="container mx-auto px-4">
-        {/* <motion.div 
-          className="mb-16 text-center"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={fadeIn}
-        >
-          {/* <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            About Us
-          </h2> 
-        </motion.div> */}
-
-        {/* <div className="flex flex-col lg:flex-row items-center gap-12">
-          <motion.div 
-            className="w-full lg:w-1/2"
+    <section className="bg-white ">
+      {/* ── Section header band ── */}
+      <div className="">
+        <div className="container mx-auto  py-10 border-b border-gray-200">
+          <motion.div
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeIn}
+            viewport={{ once: true }}
+            variants={containerVariants}
+            className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6"
           >
-            <div className="relative h-72 md:h-96 w-full rounded-lg overflow-hidden shadow-xl">
-              
-              <div className="absolute inset-0 bg-gradient-to-br from-[#63C5DA]/10 to-[#1d8fc3]/10 z-10"></div>
-              <Image
-                src="/images/health-financing.jpeg" 
-                alt="Sustainable Finance Strategies for Healthcare "
-                fill
-                style={{ objectFit: "cover" }}
-                className="z-0"
-              />
+            <div className="max-w-3xl">
+              {/* Eyebrow */}
+              <motion.div variants={itemVariants} className="flex items-center gap-3 mb-4">
+                <div className="h-px w-8 bg-[#27aae1]" />
+                <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#27aae1]">
+                  Why BPTAP Matters
+                </span>
+              </motion.div>
+
+              <motion.h2
+                variants={itemVariants}
+                className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight"
+              >
+                Why{' '}
+                <span className="text-[#27aae1]">The Benefits Package and Tariffs Advisory Panel</span>{' '}
+                Matters
+              </motion.h2>
+
+              <motion.p
+                variants={itemVariants}
+                className="mt-4 text-xl  leading-relaxed"
+              >
+                The Benefits Package and Tariffs Advisory Panel is committed to promoting
+                transparent, evidence-informed approaches to healthcare decision-making in Kenya.
+              </motion.p>
             </div>
-          </motion.div>
 
-          <motion.div 
-            className="w-full lg:w-1/2"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerChildren}
-          >
-            <motion.h3 
-              className="text-2xl font-semibold mb-4 text-[#020e3c]"
-              variants={fadeIn}
-            >
-              The The Benefits Package and Tariffs Advisory Panel
-            </motion.h3>
-
-            <motion.p 
-              className="text-gray-700 mb-6"
-              variants={fadeIn}
-            >
-              The The Benefits Package and Tariffs Advisory Panel (HBTAP) is an initiative dedicated to promoting a transparent, evidence-informed approach to the operationalization of the Social Health Authority (SHA) program, while institutionalizing health technology assessment in Kenya.
-            </motion.p>
-            
-            <motion.h4 
-              className="text-xl font-medium mb-3 text-[#020e3c]"
-              variants={fadeIn}
-            >
-              Our Main Objectives
-            </motion.h4>
-            
-            <motion.ul variants={staggerChildren} className="space-y-3 mb-8">
-              <motion.li 
-                variants={fadeIn} 
-                className="flex items-start gap-3"
+            {/* CTA */}
+            <motion.div variants={itemVariants} className="flex-shrink-0">
+              <Link
+                href="/about-us"
+                className="inline-flex items-center gap-2 border-2 border-gray-900 text-gray-900 text-sm font-bold px-6 py-3 hover:bg-gray-900 hover:text-white transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
               >
-                <div className="mt-1.5 flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-[#63C5DA] to-[#1d8fc3] flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <p>To review the The Benefits Package and Tariffs Advisory Panel for the Social Health Authority (SHA) program</p>
-              </motion.li>
-              
-              <motion.li 
-                variants={fadeIn} 
-                className="flex items-start gap-3"
-              >
-                <div className="mt-1.5 flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-[#63C5DA] to-[#1d8fc3] flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <p>To advise on fair pricing and tariffs for healthcare services</p>
-              </motion.li>
-              
-              <motion.li 
-                variants={fadeIn} 
-                className="flex items-start gap-3"
-              >
-                <div className="mt-1.5 flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-[#63C5DA] to-[#1d8fc3] flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <p>To monitor the program for continuous improvement and sustainability</p>
-              </motion.li>
-            </motion.ul>
-            
-            <motion.div 
-              variants={fadeIn}
-              className="mt-8"
-            >
-              <Link href="/team">
-                <Button className="bg-[#1d8fc3] hover:bg-[#63C5DA] text-white px-6 py-2 rounded-md">
-                  Meet Our Team
-                </Button>
+                About Us
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </motion.div>
           </motion.div>
-        </div> */}
-        
-        <motion.div 
-          className="mt-20"
+        </div>
+      </div>
+
+      {/* ── Three pillar cards ── */}
+      <div className="container mx-auto px-4 sm:px-6 py-12">
+        <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={fadeIn}
+          viewport={{ once: true }}
+          variants={containerVariants}
+          className="grid grid-cols-1 md:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x divide-gray-200 border border-gray-200"
         >
-          <h3 className="text-2xl font-semibold mb-8 text-center">
-            Why <span className="text-[#020e3c]">The Benefits Package and Tariffs Advisory Panel</span> Matters
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Card 1 */}
-            <motion.div 
-              className="bg-white p-6 rounded-lg shadow-md border-b-4 border-[#1d8fc3] hover:shadow-lg transition-shadow duration-300"
-              whileHover={{ y: -5 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="w-14 h-14 rounded-full bg-[#1d8fc3]/10 flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-[#020e3c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <h4 className="text-xl font-medium mb-3">Evidence-Based Decision Making</h4>
-              <p className="text-gray-600">
-                We ensure healthcare decisions are based on solid scientific evidence, maximizing benefits while minimizing risks and costs.
-              </p>
-            </motion.div>
-            
-            {/* Card 2 */}
-            <motion.div 
-              className="bg-white p-6 rounded-lg shadow-md border-b-4 border-[#63C5DA] hover:shadow-lg transition-shadow duration-300"
-              whileHover={{ y: -5 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="w-14 h-14 rounded-full bg-[#63C5DA]/10 flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-[#63C5DA]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h4 className="text-xl font-medium mb-3">Sustainable Healthcare Financing</h4>
-              <p className="text-gray-600">
-                We develop fair pricing strategies that balance quality healthcare delivery with financial sustainability for the SHA program.
-              </p>
-            </motion.div>
-            
-            {/* Card 3 */}
-            <motion.div 
-              className="bg-white p-6 rounded-lg shadow-md border-b-4 border-[#1d8fc3] hover:shadow-lg transition-shadow duration-300"
-              whileHover={{ y: -5 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="w-14 h-14 rounded-full bg-[#1d8fc3]/10 flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-[#020e3c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-              <h4 className="text-xl font-medium mb-3">Universal Health Coverage</h4>
-              <p className="text-gray-600">
-                Our work directly contributes to advancing Universal Health Coverage by ensuring appropriate healthcare technologies are accessible to all.
-              </p>
-            </motion.div>
-          </div>
+          {pillars.map((pillar) => {
+            const Icon = pillar.icon
+            return (
+              <motion.div
+                key={pillar.label}
+                variants={itemVariants}
+                className="group relative bg-white p-8 flex flex-col gap-5 hover:bg-[#f8fcff] transition-colors duration-200"
+              >
+                {/* Top accent line that reveals on hover */}
+                <div
+                  className="absolute top-0 left-0 right-0 h-0.5 bg-[#27aae1] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"
+                />
+
+                {/* Number + icon row */}
+                <div className="flex items-center justify-between">
+                  <span className="text-4xl font-black text-gray-400 select-none leading-none">
+                    {pillar.label}
+                  </span>
+                  <div
+                    className="w-10 h-10 flex items-center justify-center border border-gray-200 group-hover:border-[#27aae1] group-hover:bg-[#27aae1]/5 transition-colors duration-200"
+                  >
+                    <Icon className="w-5 h-5 text-[#27aae1]" strokeWidth={1.75} />
+                  </div>
+                </div>
+
+                {/* Text */}
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2 ">
+                    {pillar.title}
+                  </h3>
+                  <p className=" text-xl leading-relaxed">
+                    {pillar.body}
+                  </p>
+                </div>
+              </motion.div>
+            )
+          })}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+          className="mt-8 pt-6 border-t border-gray-200 flex flex-wrap items-center gap-x-8 gap-y-3"
+        >
+          {[
+            { label: 'Gazetted', value: 'February 2025' },
+            { label: 'Domiciled at', value: 'University of Nairobi' },
+            { label: 'Mandate', value: 'Ministry of Health, Kenya' },
+          ].map((item) => (
+            <div key={item.label} className="flex items-center gap-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                {item.label}
+              </span>
+              <span className="text-xs font-semibold text-gray-700">{item.value}</span>
+            </div>
+          ))}
         </motion.div>
       </div>
     </section>
